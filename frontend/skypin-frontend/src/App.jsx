@@ -1,122 +1,96 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [postalcode, setPostalcode] = useState("");
+  const [error, setError] = useState("");
+
+  const isValid = postalcode.trim() !== "" || (city.trim() !== "" && country.trim() !== "");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!isValid) {
+      setError("Provide either postal code, or both city and country");
+      return;
+    }
+    
+    setError("");
+    // Handle form submission here
+    console.log({ city, country, postalcode });
+  };
 
   return (
     <>
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+          
+          <form id="addressForm" onSubmit={handleSubmit}>
+            <fieldset>
+              <legend><h1>Enter your address</h1></legend>
 
-      <div className="ticks"></div>
+              <div style={{ fontSize: "0.9rem", marginBottom: "1rem", padding: "0.5rem", textAlign: "left" }}>
+                <div style={{ marginBottom: "0rem", color: isValid ? "green" : "red", display: "flex" }}>Please provide at least one of the following:</div>
+                <div style={{ marginBottom: "0rem", display: "flex" }}>
+                  <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span> &nbsp;Postal code
+                </div>
+                <div style={{ display: "flex" }}>
+                  <span>{city.trim() !== "" && country.trim() !== "" ? "✓" : "◯"}</span> &nbsp;City AND country
+                </div>
+              </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+              <label htmlFor="street">House No & Street Name</label>
+              <input
+                type="text"
+                id="street"
+                name="street"
+                placeholder="House No & Street Name"
+              />
+              <label htmlFor="city">City</label>
+              <input 
+                type="text" 
+                id="city" 
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+              <label htmlFor="county">County / District</label>
+              <input
+                type="text"
+                id="county"
+                name="county"
+                placeholder="County / District"
+              />
+              <label htmlFor="state">State / Region</label>
+              <input type="text" id="state" name="state" placeholder="State / Region" />
+              <label htmlFor="country">Country</label>
+              <input 
+                type="text" 
+                id="country" 
+                placeholder="Country"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              />
+              <label htmlFor="postalcode">Postal Code</label>
+              <input 
+                type="text" 
+                id="postalcode" 
+                placeholder="Postal Code"
+                value={postalcode}
+                onChange={(e) => setPostalcode(e.target.value)}
+              />
+            </fieldset>
+
+            <button type="submit" disabled={!isValid}>Get Weather</button>
+
+            <p id="error">{error}</p>
+          </form>
         </div>
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
