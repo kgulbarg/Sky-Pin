@@ -10,8 +10,6 @@ const {
 /* POST /api/geocode */
 router.post("/", async (req, res) => {
 
-  console.log("BODY RECEIVED:", req.body);
-
   /* No JSON body sent */
   if (!req.body || Object.keys(req.body).length === 0) {
     return res.status(400).json({
@@ -39,8 +37,14 @@ router.post("/", async (req, res) => {
 
     console.error(err.message);
 
+    if (err.message === "Location not found") {
+      return res.status(404).json({
+        error: "Location not found"
+      });
+    }
+
     res.status(500).json({
-      error: err.message || "Location not found"
+      error: "An unexpected error occurred"
     });
 
   }
