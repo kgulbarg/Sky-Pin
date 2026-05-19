@@ -31,7 +31,7 @@ function App() {
             <fieldset>
               <legend><h1>Enter your address</h1></legend>
 
-              <div style={{ fontSize: "0.9rem", marginBottom: "1rem", padding: "0.5rem", alignItems: "left"}}>
+              <div style={{ fontSize: "0.9rem", marginBottom: "1rem", padding: "0.5rem", textAlign: "left" }}>
                 <div style={{ marginBottom: "0rem", color: isValid ? "green" : "red", display: "flex" }}>Please provide at least one of the following:</div>
                 <div style={{ marginBottom: "0rem", display: "flex" }}>
                   <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span> &nbsp;Postal code
@@ -41,12 +41,14 @@ function App() {
                 </div>
               </div>
 
+              <label htmlFor="street">House No & Street Name</label>
               <input
                 type="text"
+                id="street"
                 name="street"
                 placeholder="House No & Street Name"
               />
-              <br />
+              <label htmlFor="city">City</label>
               <input 
                 type="text" 
                 id="city" 
@@ -54,15 +56,16 @@ function App() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
               />
-              <br />
+              <label htmlFor="county">County / District</label>
               <input
                 type="text"
+                id="county"
                 name="county"
                 placeholder="County / District"
               />
-              <br />
-              <input type="text" name="state" placeholder="State / Region" />
-              <br />
+              <label htmlFor="state">State / Region</label>
+              <input type="text" id="state" name="state" placeholder="State / Region" />
+              <label htmlFor="country">Country</label>
               <input 
                 type="text" 
                 id="country" 
@@ -70,7 +73,7 @@ function App() {
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
               />
-            <br />
+              <label htmlFor="postalcode">Postal Code</label>
               <input 
                 type="text" 
                 id="postalcode" 
@@ -82,7 +85,7 @@ function App() {
 
             <button type="submit" disabled={!isValid}>Get Weather</button>
 
-            <p id="error" style={{ color: "red" }}>{error}</p>
+            <p id="error">{error}</p>
           </form>
         </div>
       </section>
