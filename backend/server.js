@@ -10,6 +10,7 @@ app.use(express.json());
 
 /* Routes */
 app.use("/api/geocoord", require("./routes/geocoord"));
+app.use("/api/weather", require("./routes/weather"));
 
 /* Health check */
 app.get("/", (req, res) => {
