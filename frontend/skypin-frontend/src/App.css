@@ -57,7 +57,7 @@ input:focus {
 button {
   width: 100%;
   padding: 12px;
-  background: #111827;
+  background: #071431;
   color: white;
   border: none;
   border-radius: 8px;
@@ -68,7 +68,12 @@ button {
 }
 
 button:hover {
-  background: #1f2937;
+  background: #271e2e;
+}
+
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
 /* Error message */
