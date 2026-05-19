@@ -44,12 +44,14 @@ function App() {
               <input
                 type="text"
                 name="street"
+                aria-label="House No and Street Name"
                 placeholder="House No & Street Name"
               />
               <br />
               <input 
                 type="text" 
                 id="city" 
+                aria-label="City"
                 placeholder="City"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
@@ -58,14 +60,16 @@ function App() {
               <input
                 type="text"
                 name="county"
+                aria-label="County or District"
                 placeholder="County / District"
               />
               <br />
-              <input type="text" name="state" placeholder="State / Region" />
+              <input type="text" name="state" aria-label="State or Region" placeholder="State / Region" />
               <br />
               <input 
                 type="text" 
                 id="country" 
+                aria-label="Country"
                 placeholder="Country"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
@@ -74,6 +78,7 @@ function App() {
               <input 
                 type="text" 
                 id="postalcode" 
+                aria-label="Postal Code"
                 placeholder="Postal Code"
                 value={postalcode}
                 onChange={(e) => setPostalcode(e.target.value)}
