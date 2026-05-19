@@ -3,9 +3,9 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  geocodeLocation,
+  getCoordinates,
   validateLocationInput
-} = require("../services/geocodeService");
+} = require("../services/geocoordService");
 
 /* POST /api/geocode */
 router.post("/", async (req, res) => {
@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
     }
 
     /* Call geocoding service */
-    const result = await geocodeLocation(req.body);
+    const result = await getCoordinates(req.body);
 
     res.json(result);
 

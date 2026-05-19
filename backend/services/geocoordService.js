@@ -28,7 +28,7 @@ function validateLocationInput(data = {}) {
   );
 }
 
-async function geocodeLocation(addressData = {}) {
+async function getCoordinates(addressData = {}) {
 
   const response = await axios.get(
     "https://geocode.maps.co/search",
@@ -63,6 +63,6 @@ async function geocodeLocation(addressData = {}) {
 }
 
 module.exports = {
-  geocodeLocation,
+  getCoordinates,
   validateLocationInput
 };
