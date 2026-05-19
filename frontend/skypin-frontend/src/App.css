@@ -77,14 +77,14 @@
 }
 
 /* Error message */
-  #error {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #dc2626;
-  }
+#addressForm #error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #dc2626;
+}
 
 /* Responsive tweaks */
-  @media (max-width: 600px) {
+@media (max-width: 600px) {
   #addressForm {
     padding: 16px;
     margin: 10px;
