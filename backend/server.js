@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 /* Routes */
-app.use("/api/geocode", require("./routes/geocode"));
+app.use("/api/geocoord", require("./routes/geocoord"));
 
 /* Health check */
 app.get("/", (req, res) => {
