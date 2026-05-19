@@ -31,12 +31,12 @@ function App() {
             <fieldset>
               <legend><h1>Enter your address</h1></legend>
 
-              <div style={{ fontSize: "0.9rem", marginBottom: "1rem", padding: "1rem", border: "1px solid #ccc", borderRadius: "4px" }}>
-                <div style={{ marginBottom: "0rem", color: isValid ? "green" : "red"  }}>Please provide at least one of the following:</div>
-                <div style={{ marginBottom: "0rem", alignItems: "left", display: "flex" }}>
+              <div style={{ fontSize: "0.9rem", marginBottom: "1rem", padding: "0.5rem", alignItems: "left"}}>
+                <div style={{ marginBottom: "0rem", color: isValid ? "green" : "red", display: "flex" }}>Please provide at least one of the following:</div>
+                <div style={{ marginBottom: "0rem", display: "flex" }}>
                   <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span> &nbsp;Postal code
                 </div>
-                <div style={{ alignItems: "left", display: "flex" }}>
+                <div style={{ display: "flex" }}>
                   <span>{city.trim() !== "" && country.trim() !== "" ? "✓" : "◯"}</span> &nbsp;City AND country
                 </div>
               </div>
