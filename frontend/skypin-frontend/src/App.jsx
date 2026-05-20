@@ -2,24 +2,88 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
+
+  const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
+
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [postalcode, setPostalcode] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [location, setLocation] = useState(null);
+  const [weather, setWeather] = useState(null);
 
   const isValid = postalcode.trim() !== "" || (city.trim() !== "" && country.trim() !== "");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const payload = {
+      street: (formData.get("street") || "").toString().trim(),
+      city: (formData.get("city") || "").toString().trim(),
+      county: (formData.get("county") || "").toString().trim(),
+      state: (formData.get("state") || "").toString().trim(),
+      country: (formData.get("country") || "").toString().trim(),
+      postalcode: (formData.get("postalcode") || "").toString().trim(),
+    };
+
+    const hasPostalCode = payload.postalcode !== "";
+    const hasCityAndCountry = payload.city !== "" && payload.country !== "";
     
-    if (!isValid) {
+    if (!hasPostalCode && !hasCityAndCountry) {
       setError("Provide either postal code, or both city and country");
       return;
     }
-    
+
     setError("");
-    // Handle form submission here
-    console.log({ city, country, postalcode });
+    setWeather(null);
+    setLocation(null);
+    setIsLoading(true);
+
+    try {
+      const geocoordResponse = await fetch(`${apiBaseUrl}/api/geocoord`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const geocoordResult = await geocoordResponse.json();
+
+      if (!geocoordResponse.ok) {
+        throw new Error(geocoordResult.error || "Failed to get coordinates.");
+      }
+
+      const latitude = Number(geocoordResult.latitude);
+      const longitude = Number(geocoordResult.longitude);
+
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        throw new Error("Invalid coordinates returned by geocoding API.");
+      }
+
+      const weatherResponse = await fetch(`${apiBaseUrl}/api/weather`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ latitude, longitude }),
+      });
+
+      const weatherResult = await weatherResponse.json();
+
+      if (!weatherResponse.ok) {
+        throw new Error(weatherResult.error || "Failed to get weather data.");
+      }
+
+      setLocation(geocoordResult.display_name || `${latitude}, ${longitude}`);
+      setWeather(weatherResult);
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,6 +116,7 @@ function App() {
               <input 
                 type="text" 
                 id="city" 
+                name="city"
                 placeholder="City"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
@@ -69,6 +134,7 @@ function App() {
               <input 
                 type="text" 
                 id="country" 
+                name="country"
                 placeholder="Country"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
@@ -77,16 +143,39 @@ function App() {
               <input 
                 type="text" 
                 id="postalcode" 
+                name="postalcode"
                 placeholder="Postal Code"
                 value={postalcode}
                 onChange={(e) => setPostalcode(e.target.value)}
               />
             </fieldset>
 
-            <button type="submit" disabled={!isValid}>Get Weather</button>
+            <button type="submit" disabled={!isValid || isLoading}>
+              {isLoading ? "Loading weather..." : "Get Weather"}
+            </button>
 
             <p id="error">{error}</p>
           </form>
+
+          {weather && (
+            <section id="weatherResult" aria-live="polite">
+              <h2>Current Weather</h2>
+              <p>{location}</p>
+              <p>
+                Temperature: {weather.current?.temperature_2m}
+                {weather.current_units?.temperature_2m}
+              </p>
+              <p>
+                Feels like: {weather.current?.apparent_temperature}
+                {weather.current_units?.apparent_temperature}
+              </p>
+              <p>
+                Wind: {weather.current?.wind_speed_10m}
+                {weather.current_units?.wind_speed_10m}
+              </p>
+              <p>Condition code: {weather.current?.weather_code}</p>
+            </section>
+          )}
         </div>
       </section>
     </>
