@@ -74,7 +74,7 @@ function App() {
           <form id="addressForm" onSubmit={handleSubmit}>
             <fieldset>
               <legend>
-                <h1>Enter your address</h1>
+                Enter your address
               </legend>
 
               <div
@@ -106,47 +106,61 @@ function App() {
                 </div>
               </div>
 
-              <label htmlFor="city">City</label>
-              <input
-                type="text"
-                id="city"
-                name="city"
-                placeholder="City"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-              <label htmlFor="county">County / District</label>
-              <input
-                type="text"
-                id="county"
-                name="county"
-                placeholder="County / District"
-              />
-              <label htmlFor="state">State / Region</label>
-              <input
-                type="text"
-                id="state"
-                name="state"
-                placeholder="State / Region"
-              />
-              <label htmlFor="country">Country</label>
-              <input
-                type="text"
-                id="country"
-                name="country"
-                placeholder="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-              />
-              <label htmlFor="postalcode">Postal Code</label>
-              <input
-                type="text"
-                id="postalcode"
-                name="postalcode"
-                placeholder="Postal Code"
-                value={postalcode}
-                onChange={(e) => setPostalcode(e.target.value)}
-              />
+              <div className="form-row">
+                <label htmlFor="city">City</label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  placeholder="City"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
+
+              <div className="form-row">
+                <label htmlFor="county">County / District</label>
+                <input
+                  type="text"
+                  id="county"
+                  name="county"
+                  placeholder="County / District"
+                />
+              </div>
+
+              <div className="form-row">
+                <label htmlFor="state">State / Region</label>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  placeholder="State / Region"
+                />
+              </div>
+
+              <div className="form-row">
+                <label htmlFor="country">Country</label>
+                <input
+                  type="text"
+                  id="country"
+                  name="country"
+                  placeholder="Country"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              </div>
+
+              <div className="form-row">
+                <label htmlFor="postalcode">Postal Code</label>
+                <input
+                  type="text"
+                  id="postalcode"
+                  name="postalcode"
+                  placeholder="Postal Code"
+                  value={postalcode}
+                  onChange={(e) => setPostalcode(e.target.value)}
+                />
+              </div>
             </fieldset>
 
             <button type="submit" disabled={!isValid || isLoading}>
