@@ -20,7 +20,6 @@ function App() {
     const formData = new FormData(e.currentTarget);
 
     const payload = {
-      street: (formData.get("street") || "").toString().trim(),
       city: (formData.get("city") || "").toString().trim(),
       county: (formData.get("county") || "").toString().trim(),
       state: (formData.get("state") || "").toString().trim(),
@@ -107,13 +106,6 @@ function App() {
                 </div>
               </div>
 
-              <label htmlFor="street">House No & Street Name</label>
-              <input
-                type="text"
-                id="street"
-                name="street"
-                placeholder="House No & Street Name"
-              />
               <label htmlFor="city">City</label>
               <input
                 type="text"
