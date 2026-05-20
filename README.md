@@ -16,3 +16,7 @@
 1. Frontend - React JS
 2. Backend - Python 3
 3. Database - PostgreSQL
+
+### To run
+cd /backend> node server.js
+cd /frontend> npm run dev
