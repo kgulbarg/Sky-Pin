@@ -1,4 +1,6 @@
-# Sky-Pin
+<img src="frontend/skypin-frontend/public/logo.png" width="200"/>
+
+# Sky Pin
 
 ## Design
 
