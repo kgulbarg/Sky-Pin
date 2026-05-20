@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
 
     console.error(err.message);
 
-    if (err.message === "Location not found") {
+    if (err.message === "Exact location not found.") {
       return res.status(404).json({
         error: "Location not found"
       });
