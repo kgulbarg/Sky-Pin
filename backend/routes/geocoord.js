@@ -2,6 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
+
+
 const {
   getCoordinates,
   validateLocationInput
@@ -39,7 +41,7 @@ router.post("/", async (req, res) => {
 
     if (err.message === "Location not found") {
       return res.status(404).json({
-        error: "Location not found"
+        error: "Exact location not found"
       });
     }
 
