@@ -25,6 +25,10 @@ async function getForecast(addressData = {}) {
   const latitude = Number(location.latitude);
   const longitude = Number(location.longitude);
 
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    throw new Error("Latitude and longitude must be finite numbers.");
+  }
+
   /* Validate coordinates returned */
   const coordinateError = validateCoordinates(
     latitude,

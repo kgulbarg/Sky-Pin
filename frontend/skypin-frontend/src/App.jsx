@@ -31,17 +31,16 @@ function App() {
     const hasPostalCode = payload.postalcode !== "";
     const hasCityAndCountry = payload.city !== "" && payload.country !== "";
 
+    setWeather(null);
+    setLocation(null);
+
     if (!hasPostalCode && !hasCityAndCountry) {
       setError("Provide either postal code, or both city and country");
       return;
     }
 
     setError("");
-    setWeather(null);
-    setLocation(null);
     setIsLoading(true);
-
-    console.log("Submitting payload:", payload);
 
     try {
       const forecastResponse = await fetch(`${apiBaseUrl}/api/forecast`, {
