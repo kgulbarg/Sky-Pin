@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: "../.env" });
 
 const express = require("express");
 const cors = require("cors");
@@ -19,8 +19,8 @@ app.get("/", (req, res) => {
   });
 });
 
-const PORT = parseInt(process.env.PORT, 10) || 3000;
+const BACKEND_PORT = parseInt(process.env.BACKEND_PORT, 10) || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(BACKEND_PORT, () => {
+  console.log(`Server running on BACKEND_PORT ${BACKEND_PORT}`);
 });
