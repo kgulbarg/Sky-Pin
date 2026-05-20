@@ -16,7 +16,7 @@ export default defineConfig([
     languageOptions: {
       globals: {
         ...globals.browser,
-        __BACKEND_PORT__: 'readonly',
+        __BACKEND_PORT__: "readonly",
       },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
