@@ -83,6 +83,25 @@
   color: #dc2626;
 }
 
+#weatherResult {
+  max-width: 620px;
+  margin: 16px auto 0;
+  background: #f8fafc;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: left;
+  color: #0f172a;
+}
+
+#weatherResult h2 {
+  margin: 0 0 10px;
+}
+
+#weatherResult p {
+  margin: 6px 0;
+}
+
 /* Responsive tweaks */
 @media (max-width: 600px) {
   #addressForm {

@@ -49,7 +49,7 @@ async function getCoordinates(addressData = {}) {
 
   /* No results */
   if (!response.data || response.data.length === 0) {
-    throw new Error("Location not found");
+    throw new Error("Exact location not found.");
   }
 
   /* Take best match */
