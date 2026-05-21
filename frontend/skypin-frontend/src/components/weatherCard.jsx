@@ -15,12 +15,6 @@ function WeatherCard({ location, weather, onSearchAgain }) {
   return (
     <section id="weatherPage" aria-live="polite">
       <div id="weatherResult">
-        <img
-          src="/logo_no_bg.webp"
-          alt="Sky Pin logo"
-          className="weather-logo"
-        />
-
         <button
           className="back-button"
           type="button"
