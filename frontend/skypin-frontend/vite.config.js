@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const backendPort = env.BACKEND_PORT || "3000";
 
   return {
-    plugins: [react()],
+    plugins: [react({ jsxRuntime: "automatic" })],
     test: {
       environment: "jsdom",
       globals: true,

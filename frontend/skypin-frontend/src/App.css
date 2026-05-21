@@ -62,7 +62,7 @@
 }
 
 /* Button */
-button {
+#addressForm button {
   width: 100%;
   font-weight: bold;
   padding: 10px;
@@ -76,11 +76,11 @@ button {
   transition: 0.2s ease;
 }
 
-button:hover {
+#addressForm button:hover {
   background: #141c45;
 }
 
-button:disabled {
+#addressForm button:disabled {
   background: #9ca3af;
   cursor: not-allowed;
 }
@@ -127,7 +127,7 @@ button:disabled {
 }
 
 .weather-kicker {
-  margin: 0 0 10px;
+  margin: 20px 0 10px;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -173,6 +173,11 @@ button:disabled {
   min-width: 180px;
   margin-top: 8px;
   padding-inline: 18px;
+}
+
+#weatherResult .back-button {
+  width: fit-content;
+  min-width: unset;
 }
 
 /* Responsive tweaks */
