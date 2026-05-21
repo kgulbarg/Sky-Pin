@@ -5,6 +5,7 @@ function App() {
   const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
 
   const [city, setCity] = useState("");
+  const [county, setCounty] = useState("");
   const [state, setState] = useState("");
   const [country, setCountry] = useState("");
   const [postalcode, setPostalcode] = useState("");
@@ -14,13 +15,23 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [view, setView] = useState("form");
 
-  const hasCity = city.trim() !== "";
-  const hasState = state.trim() !== "";
-  const hasCountry = country.trim() !== "";
-  const hasPostalcode = postalcode.trim() !== "";
+  const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
+    const hasCountry = country.trim() !== "";
+    const hasPostalCode = postalcode.trim() !== "";
+    const hasCity = city.trim() !== "";
+    const hasState = state.trim() !== "";
+    const hasCounty = county.trim() !== "";
 
-  const isValid =
-    hasCountry && (hasPostalcode || (hasCity && hasState));
+    return hasCountry && (hasPostalCode || (hasCity && (hasState || hasCounty)));
+  };
+
+  const isValid = isLocationPayloadValid({
+    city,
+    county,
+    state,
+    country,
+    postalcode,
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,13 +45,9 @@ function App() {
       postalcode: (formData.get("postalcode") || "").toString().trim(),
     };
 
-    const hasCountry = payload.country !== "";
-    const hasPostalCode = payload.postalcode !== "";
-    const hasCityAndState = payload.city !== "" && payload.state !== "";
-
-    if (!hasCountry || (!hasPostalCode && !hasCityAndState)) {
+    if (!isLocationPayloadValid(payload)) {
       setError(
-        "Provide country with postal code, or country with city and state"
+        "Provide country with postal code, or country with city and state or county"
       );
       return;
     }
@@ -126,11 +133,13 @@ function App() {
                     </div>
                     <div style={{ display: "flex" }}>
                       <span>
-                        {country.trim() !== "" && city.trim() !== "" && state.trim() !== ""
+                        {country.trim() !== "" &&
+                        city.trim() !== "" &&
+                        (state.trim() !== "" || county.trim() !== "")
                           ? "✓"
                           : "◯"}
                       </span>{" "}
-                      &nbsp;Country + City + State
+                      &nbsp;Country + City + State or County
                     </div>
                   </div>
 
@@ -153,6 +162,8 @@ function App() {
                       id="county"
                       name="county"
                       placeholder="County / District"
+                      value={county}
+                      onChange={(e) => setCounty(e.target.value)}
                     />
                   </div>
 

@@ -1,12 +1,12 @@
 const axios = require("axios");
 
 const LOCATION_INPUT_ERROR_MESSAGE =
-  "Country is required with postal code or city and state.";
+  "Country is required with postal code or city and state or county.";
 
 /*
 Validate location input.
 All provided values must be strings.
-Accepted combinations are country + postalcode or country + city + state.
+Accepted combinations are country + postalcode or country + city + (state or county).
 */
 function validateLocationInput(data = {}) {
 
@@ -26,12 +26,13 @@ function validateLocationInput(data = {}) {
   }
 
   const hasCity = typeof city === "string" && city.trim().length > 0;
+  const hasCounty = typeof county === "string" && county.trim().length > 0;
   const hasState = typeof state === "string" && state.trim().length > 0;
   const hasCountry = typeof country === "string" && country.trim().length > 0;
   const hasPostalcode =
     typeof postalcode === "string" && postalcode.trim().length > 0;
 
-  return hasCountry && (hasPostalcode || (hasCity && hasState));
+  return hasCountry && (hasPostalcode || (hasCity && (hasState || hasCounty)));
 }
 
 async function getCoordinates(addressData = {}) {

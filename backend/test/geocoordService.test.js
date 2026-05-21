@@ -23,12 +23,15 @@ describe('geocoordService', () => {
       );
     });
 
-    test('returns true for country plus postal code or city and state', () => {
+    test('returns true for country plus postal code or city and state or county', () => {
       expect(
         validateLocationInput({ country: 'France', postalcode: '75001' })
       ).toBe(true);
       expect(
         validateLocationInput({ country: 'France', city: 'Paris', state: 'IDF' })
+      ).toBe(true);
+      expect(
+        validateLocationInput({ country: 'France', city: 'Paris', county: 'Paris' })
       ).toBe(true);
       expect(LOCATION_INPUT_ERROR_MESSAGE).toMatch(/Country is required/);
     });

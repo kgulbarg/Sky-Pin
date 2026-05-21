@@ -14,7 +14,7 @@ describe('forecastService', () => {
     geo.validateLocationInput.mockReturnValue(false);
 
       await expect(getForecast({})).rejects.toThrow(
-        /Country is required with postal code or city and state/
+        /Country is required with postal code or city and state or county/
       );
   });
 
