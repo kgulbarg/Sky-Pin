@@ -8,7 +8,6 @@ At least one field must exist
 function validateLocationInput(data = {}) {
 
   const {
-    street,
     city,
     county,
     state,
@@ -16,7 +15,7 @@ function validateLocationInput(data = {}) {
     postalcode
   } = data;
 
-  const fields = [street, city, county, state, country, postalcode];
+  const fields = [city, county, state, country, postalcode];
 
   /* Reject non-string values for any provided field */
   if (fields.some(field => field !== undefined && typeof field !== "string")) {
@@ -37,7 +36,6 @@ async function getCoordinates(addressData = {}) {
       params: {
         api_key: process.env.GEOCODE_API_KEY,
 
-        street: addressData.street || "",
         city: addressData.city || "",
         county: addressData.county || "",
         state: addressData.state || "",
@@ -49,7 +47,7 @@ async function getCoordinates(addressData = {}) {
 
   /* No results */
   if (!response.data || response.data.length === 0) {
-    throw new Error("Exact location not found.");
+    throw new Error("Location not found.");
   }
 
   /* Take best match */

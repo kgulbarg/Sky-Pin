@@ -14,5 +14,10 @@
 ### Tech Stack
 
 1. Frontend - React JS
-2. Backend - Python 3
+2. Backend - Node.js (Express)
 3. Database - PostgreSQL
+
+### To run
+cd /backend> node server.js
+
+cd /frontend/skypin-frontend> npm run dev

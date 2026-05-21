@@ -19,23 +19,32 @@
 
 #addressForm legend {
   font-weight: bold;
-  font-size: 14px;
+  font-size: 24px;
   padding: 0 8px;
   color: #333;
 }
 
 /* Labels */
+#addressForm .form-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 #addressForm label {
-  display: block;
-  margin-top: 10px;
-  margin-bottom: 6px;
-  font-size: 13px;
+  display: inline-block;
+  font-weight: 500;
+  width: 120px;
+  margin: 0;
+  font-size: 15px;
   color: #444;
+  text-align: left;
 }
 
 /* Inputs */
 #addressForm input {
-  width: 100%;
+  flex: 1 1 auto;
+  width: calc(100% - 120px);
   padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
@@ -43,8 +52,7 @@
   outline: none;
   transition: 0.2s ease;
   box-sizing: border-box;
-  margin-top: 4px;
-  margin-bottom: 10px;
+  margin: 4px 0 10px 0;
 }
 
 /* Focus state */
@@ -56,19 +64,20 @@
 /* Button */
 #addressForm button {
   width: 100%;
-  padding: 12px;
-  background: #071431;
+  font-weight: bold;
+  padding: 10px;
+  background: #1b265b;
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 20px;
   cursor: pointer;
   margin-top: 10px;
   transition: 0.2s ease;
 }
 
 #addressForm button:hover {
-  background: #271e2e;
+  background: #141c45;
 }
 
 #addressForm button:disabled {
@@ -84,22 +93,104 @@
 }
 
 #weatherResult {
-  max-width: 620px;
-  margin: 16px auto 0;
-  background: #f8fafc;
+  position: relative;
+  width: min(820px, calc(100% - 32px));
+  margin: 0 auto;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
   border: 1px solid #dbe3ee;
-  border-radius: 12px;
-  padding: 16px 20px;
+  border-radius: 20px;
+  padding: 28px;
   text-align: left;
   color: #0f172a;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
 #weatherResult h2 {
-  margin: 0 0 10px;
+  margin: 0;
+  font-size: 2rem;
 }
 
 #weatherResult p {
   margin: 6px 0;
+}
+
+.weather-logo {
+  position: absolute;
+
+  top: -80px;
+  right: -80px;
+
+  width: 200px;
+  height: auto;
+
+  z-index: 10;
+}
+
+.weather-kicker {
+  margin: 20px 0 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.weather-location {
+  margin: 10px 0 20px;
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+
+.weather-grid article {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weather-grid span {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.weather-grid strong {
+  font-size: 1.6rem;
+  color: #0f172a;
+}
+
+#weatherResult button {
+  width: auto;
+  min-width: 180px;
+  margin-top: 8px;
+  padding-inline: 18px;
+}
+
+#weatherResult .back-button {
+  width: fit-content;
+  min-width: 50px;
+  font-weight: bold;
+  padding: 12px;
+  background: #1b265b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#weatherResult .back-button:hover {
+  background: #141c45;
 }
 
 /* Responsive tweaks */
@@ -107,6 +198,34 @@
   #addressForm {
     padding: 16px;
     margin: 10px;
+  }
+
+  /* On small screens stack label and input */
+  #addressForm .form-row {
+    display: block;
+  }
+
+  #addressForm label {
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
+  }
+
+  #addressForm input {
+    width: 100%;
+  }
+
+  #weatherResult {
+    width: calc(100% - 20px);
+    padding: 20px;
+  }
+
+  .weather-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #weatherResult button {
+    width: 100%;
   }
 }
 
@@ -121,5 +240,57 @@
   @media (max-width: 1024px) {
     padding: 32px 20px 24px;
     gap: 18px;
+  }
+}
+
+/* Two-column layout: logo left, content right */
+.two-column {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.left-column {
+  flex: 0 0 50%;
+  background: linear-gradient(180deg, #16171d 0%, #141c45 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  display: block;
+  width: 2200px;
+  max-width: 70%;
+  height: auto;
+  object-fit: contain;
+}
+
+.right-column {
+  flex: 1 1 50%;
+  background: linear-gradient(180deg, #262832 0%, #1b265b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* Ensure form card stays white on top of pink */
+#addressForm {
+  background: white;
+}
+
+@media (max-width: 900px) {
+  .two-column {
+    flex-direction: column;
+  }
+
+  .left-column {
+    flex: none;
+    padding: 18px 12px;
+  }
+
+  .right-column {
+    padding: 18px 12px;
   }
 }
