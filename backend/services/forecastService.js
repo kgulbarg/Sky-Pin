@@ -1,7 +1,7 @@
 const {
-  LOCATION_INPUT_ERROR_MESSAGE,
   validateLocationInput,
-  getCoordinates
+  getCoordinates,
+  LOCATION_INPUT_ERROR_MESSAGE
 } = require("./geocoordService");
 
 const {
