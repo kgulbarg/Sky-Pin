@@ -11,6 +11,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    test: {
+      environment: "jsdom",
+      globals: true,
+      setupFiles: path.resolve(configDir, "src/setupTests.js"),
+    },
     define: {
       __BACKEND_PORT__: JSON.stringify(backendPort),
     },
