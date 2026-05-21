@@ -15,6 +15,7 @@ describe('App', () => {
     render(<App />);
 
     expect(screen.getByLabelText(/City/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/County/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/State/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Country/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Postal Code/i)).toBeInTheDocument();
@@ -88,6 +89,39 @@ describe('App', () => {
     await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
 
     expect(screen.getByText('Test Place 2')).toBeInTheDocument();
+    expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
+  });
+
+  test('submits country with city and county and shows results', async () => {
+    const fakeResponse = {
+      location: { display_name: 'Test Place 3', latitude: 12.34, longitude: 56.78 },
+      weather: {
+        current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
+        current: { temperature_2m: 19, apparent_temperature: 18, wind_speed_10m: 2, weather_code: 2 }
+      }
+    };
+
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(fakeResponse)
+    })));
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/City/i), 'Paris');
+    await user.type(screen.getByLabelText(/County/i), 'Paris');
+    await user.type(screen.getByLabelText(/Country/i), 'France');
+
+    const button = screen.getByRole('button', { name: /get weather/i });
+    expect(button).toBeEnabled();
+
+    await user.click(button);
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
+    expect(screen.getByText('Test Place 3')).toBeInTheDocument();
     expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
   });
 });

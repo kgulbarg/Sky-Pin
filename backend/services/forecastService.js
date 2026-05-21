@@ -1,10 +1,8 @@
 const {
   validateLocationInput,
-  getCoordinates
+  getCoordinates,
+  LOCATION_INPUT_ERROR_MESSAGE
 } = require("./geocoordService");
-
-const LOCATION_INPUT_ERROR_MESSAGE =
-  "Country is required with postal code or city and state.";
 
 const {
   validateCoordinates,
