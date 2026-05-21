@@ -3,7 +3,14 @@ import "../styles/weatherCard.css";
 
 import { getWeatherUI } from "../utils/weatherMappings.js";
 
-function WeatherCard({ location, weather, onSearchAgain }) {
+function WeatherCard({
+  location,
+  weather,
+  error,
+  onSearchAgain,
+  onSeeForecast,
+  isForecastLoading = false
+}) {
   const current = weather?.current;
   const units = weather?.current_units;
 
@@ -23,6 +30,15 @@ function WeatherCard({ location, weather, onSearchAgain }) {
         >
           &#9664;
         </button>
+        &nbsp;&nbsp;&nbsp;
+        <button
+          className="forecast-button"
+          type="button"
+          onClick={onSeeForecast}
+          disabled={isForecastLoading}
+        >
+          {isForecastLoading ? "Loading 5-day forecast..." : "See 5-day forecast"}
+        </button>
 
         <div className="weather-header-row">
           <div className="weather-text">
@@ -40,6 +56,8 @@ function WeatherCard({ location, weather, onSearchAgain }) {
             <p>{weatherUI.label}</p>
           </div>
         </div>
+
+        {error ? <p className="weather-error">{error}</p> : null}
 
         <div className="weather-grid">
           <article>

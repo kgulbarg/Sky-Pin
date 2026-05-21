@@ -1,5 +1,6 @@
 import { useState } from "react";
 import WeatherCard from "./components/weatherCard.jsx";
+import ForecastCard from "./components/forecastCard.jsx";
 import "./App.css";
 
 function App() {
@@ -12,7 +13,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState(null);
   const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState(null);
+  const [searchPayload, setSearchPayload] = useState(null);
   const [view, setView] = useState("form");
+  const [isForecastLoading, setIsForecastLoading] = useState(false);
 
   const isValid =
     postalcode.trim() !== "" || (city.trim() !== "" && country.trim() !== "");
@@ -40,7 +44,9 @@ function App() {
     setError("");
     setView("form");
     setWeather(null);
+    setForecast(null);
     setLocation(null);
+    setSearchPayload(payload);
     setIsLoading(true);
 
     try {
@@ -61,7 +67,7 @@ function App() {
       setLocation(forecastResult.location.display_name);
 
       setWeather(forecastResult.weather);
-      setView("results");
+      setView("current");
     } catch (err) {
       setError(err.message || "Something went wrong.");
       setView("form");
@@ -73,8 +79,45 @@ function App() {
   const handleSearchAgain = () => {
     setView("form");
     setWeather(null);
+    setForecast(null);
     setLocation(null);
     setError("");
+    setSearchPayload(null);
+  };
+
+  const handleSeeForecast = async () => {
+    if (!searchPayload) {
+      setError("Search again to load the forecast.");
+      return;
+    }
+
+    setError("");
+    setIsForecastLoading(true);
+
+    try {
+      const forecastResponse = await fetch(`${apiBaseUrl}/api/forecast5day`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(searchPayload),
+      });
+
+      const forecastResult = await forecastResponse.json();
+
+      if (!forecastResponse.ok) {
+        throw new Error(forecastResult.error || "Failed to fetch forecast.");
+      }
+
+      setForecast(forecastResult.forecast);
+      setLocation(forecastResult.location.display_name);
+      setView("forecast");
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+      setView("current");
+    } finally {
+      setIsForecastLoading(false);
+    }
   };
 
   return (
@@ -188,11 +231,27 @@ function App() {
             </main>
           </div>
         ) : (
-          <WeatherCard
-            location={location}
-            weather={weather}
-            onSearchAgain={handleSearchAgain}
-          />
+          <>
+            {view === "current" && (
+              <WeatherCard
+                location={location}
+                weather={weather}
+                error={error}
+                onSearchAgain={handleSearchAgain}
+                onSeeForecast={handleSeeForecast}
+                isForecastLoading={isForecastLoading}
+              />
+            )}
+
+            {view === "forecast" && (
+              <ForecastCard
+                location={location}
+                forecast={forecast}
+                onBackToCurrent={() => setView("current")}
+                onSearchAgain={handleSearchAgain}
+              />
+            )}
+          </>
         )}
       </section>
     </>
