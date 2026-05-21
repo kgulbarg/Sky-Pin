@@ -1,5 +1,5 @@
 const BASE_ICON_URL =
-  "https://cdn.meteocons.com/3.0.0-next.10/svg/fill/";
+  "https://cdn.meteocons.com/3.0.0/svg/fill/";
 
 const WEATHER_MAP = {
 
