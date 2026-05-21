@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import "./App.css";
 
@@ -87,106 +86,104 @@ function App() {
             </aside>
 
             <main className="right-column">
-              {view === "form" && (
-                <form id="addressForm" onSubmit={handleSubmit}>
-                  <fieldset>
-                    <legend>Enter your address</legend>
+              <form id="addressForm" onSubmit={handleSubmit}>
+                <fieldset>
+                  <legend>Enter your address</legend>
 
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      marginBottom: "1rem",
+                      padding: "0.5rem",
+                      textAlign: "left",
+                    }}
+                  >
                     <div
                       style={{
-                        fontSize: "0.9rem",
-                        marginBottom: "1rem",
-                        padding: "0.5rem",
-                        textAlign: "left",
+                        marginBottom: "0rem",
+                        color: isValid ? "green" : "red",
+                        display: "flex",
                       }}
                     >
-                      <div
-                        style={{
-                          marginBottom: "0rem",
-                          color: isValid ? "green" : "red",
-                          display: "flex",
-                        }}
-                      >
-                        Please provide at least one of the following:
-                      </div>
-                      <div style={{ marginBottom: "0rem", display: "flex" }}>
-                        <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span>{" "}
-                        &nbsp;Postal code
-                      </div>
-                      <div style={{ display: "flex" }}>
-                        <span>
-                          {city.trim() !== "" && country.trim() !== ""
-                            ? "✓"
-                            : "◯"}
-                        </span>{" "}
-                        &nbsp;City AND country
-                      </div>
+                      Please provide at least one of the following:
                     </div>
-
-                    <div className="form-row">
-                      <label htmlFor="city">City</label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        placeholder="City"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                      />
+                    <div style={{ marginBottom: "0rem", display: "flex" }}>
+                      <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span>{" "}
+                      &nbsp;Postal code
                     </div>
-
-                    <div className="form-row">
-                      <label htmlFor="county">County / District</label>
-                      <input
-                        type="text"
-                        id="county"
-                        name="county"
-                        placeholder="County / District"
-                      />
+                    <div style={{ display: "flex" }}>
+                      <span>
+                        {city.trim() !== "" && country.trim() !== ""
+                          ? "✓"
+                          : "◯"}
+                      </span>{" "}
+                      &nbsp;City AND country
                     </div>
+                  </div>
 
-                    <div className="form-row">
-                      <label htmlFor="state">State / Region</label>
-                      <input
-                        type="text"
-                        id="state"
-                        name="state"
-                        placeholder="State / Region"
-                      />
-                    </div>
+                  <div className="form-row">
+                    <label htmlFor="city">City</label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      placeholder="City"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </div>
 
-                    <div className="form-row">
-                      <label htmlFor="country">Country</label>
-                      <input
-                        type="text"
-                        id="country"
-                        name="country"
-                        placeholder="Country"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                      />
-                    </div>
+                  <div className="form-row">
+                    <label htmlFor="county">County / District</label>
+                    <input
+                      type="text"
+                      id="county"
+                      name="county"
+                      placeholder="County / District"
+                    />
+                  </div>
 
-                    <div className="form-row">
-                      <label htmlFor="postalcode">Postal Code</label>
-                      <input
-                        type="text"
-                        id="postalcode"
-                        name="postalcode"
-                        placeholder="Postal Code"
-                        value={postalcode}
-                        onChange={(e) => setPostalcode(e.target.value)}
-                      />
-                    </div>
-                  </fieldset>
+                  <div className="form-row">
+                    <label htmlFor="state">State / Region</label>
+                    <input
+                      type="text"
+                      id="state"
+                      name="state"
+                      placeholder="State / Region"
+                    />
+                  </div>
 
-                  <button type="submit" disabled={!isValid || isLoading}>
-                    {isLoading ? "Loading weather..." : "Get Weather"}
-                  </button>
+                  <div className="form-row">
+                    <label htmlFor="country">Country</label>
+                    <input
+                      type="text"
+                      id="country"
+                      name="country"
+                      placeholder="Country"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                    />
+                  </div>
 
-                  <p id="error">{error}</p>
-                </form>
-              )}
+                  <div className="form-row">
+                    <label htmlFor="postalcode">Postal Code</label>
+                    <input
+                      type="text"
+                      id="postalcode"
+                      name="postalcode"
+                      placeholder="Postal Code"
+                      value={postalcode}
+                      onChange={(e) => setPostalcode(e.target.value)}
+                    />
+                  </div>
+                </fieldset>
+
+                <button type="submit" disabled={!isValid || isLoading}>
+                  {isLoading ? "Loading weather..." : "Get Weather"}
+                </button>
+
+                <p id="error">{error}</p>
+              </form>
             </main>
           </div>
         ) : (
@@ -198,16 +195,13 @@ function App() {
                 className="weather-logo"
               />
               <button
-                style={{
-                  width: "fit-content",
-                  minWidth: "unset",
-                }}
+                className="back-button"
                 type="button"
+                aria-label="Return to search"
                 onClick={handleSearchAgain}
               >
                 &#9664;
               </button>
-              <br/><br/>
               <p className="weather-kicker">Weather results</p>
               <h2>Current Weather</h2>
               <p className="weather-location">{location}</p>

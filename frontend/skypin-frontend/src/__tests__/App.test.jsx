@@ -2,22 +2,13 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { JSDOM } from 'jsdom';
-
-// Ensure a DOM is available when environment isn't automatically configured
-if (typeof document === 'undefined') {
-  const dom = new JSDOM('<!doctype html><html><body></body></html>');
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.navigator = dom.window.navigator;
-  global.HTMLElement = dom.window.HTMLElement;
-}
+import { afterEach, describe, test, expect, vi } from 'vitest';
 
 describe('App', () => {
-  beforeEach(() => {
-    // ensure backend port constant exists
-    global.__BACKEND_PORT__ = '3000';
+  globalThis.React = React;
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   test('renders form fields and disabled submit when invalid', () => {
@@ -40,10 +31,10 @@ describe('App', () => {
       }
     };
 
-    global.fetch = vi.fn(() => Promise.resolve({
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({
       ok: true,
       json: () => Promise.resolve(fakeResponse)
-    }));
+    })));
 
     render(<App />);
 
@@ -60,8 +51,5 @@ describe('App', () => {
     expect(screen.getByText('Test Place')).toBeInTheDocument();
     expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
     expect(screen.getByText(/Feels like/i)).toBeInTheDocument();
-
-    // cleanup mock
-    global.fetch.mockRestore?.();
   });
 });
