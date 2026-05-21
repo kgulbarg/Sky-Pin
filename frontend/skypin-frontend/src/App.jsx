@@ -5,6 +5,8 @@ function App() {
   const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
 
   const [city, setCity] = useState("");
+  const [county, setCounty] = useState("");
+  const [state, setState] = useState("");
   const [country, setCountry] = useState("");
   const [postalcode, setPostalcode] = useState("");
   const [error, setError] = useState("");
@@ -13,8 +15,23 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [view, setView] = useState("form");
 
-  const isValid =
-    postalcode.trim() !== "" || (city.trim() !== "" && country.trim() !== "");
+  const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
+    const hasCountry = country.trim() !== "";
+    const hasPostalCode = postalcode.trim() !== "";
+    const hasCity = city.trim() !== "";
+    const hasState = state.trim() !== "";
+    const hasCounty = county.trim() !== "";
+
+    return hasCountry && (hasPostalCode || (hasCity && (hasState || hasCounty)));
+  };
+
+  const isValid = isLocationPayloadValid({
+    city,
+    county,
+    state,
+    country,
+    postalcode,
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,11 +45,10 @@ function App() {
       postalcode: (formData.get("postalcode") || "").toString().trim(),
     };
 
-    const hasPostalCode = payload.postalcode !== "";
-    const hasCityAndCountry = payload.city !== "" && payload.country !== "";
-
-    if (!hasPostalCode && !hasCityAndCountry) {
-      setError("Provide either postal code, or both city and country");
+    if (!isLocationPayloadValid(payload)) {
+      setError(
+        "Provide country with postal code, or country with city and state or county"
+      );
       return;
     }
 
@@ -105,19 +121,25 @@ function App() {
                         display: "flex",
                       }}
                     >
-                      Please provide at least one of the following:
+                      Please provide one of the following:
                     </div>
                     <div style={{ marginBottom: "0rem", display: "flex" }}>
-                      <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span>{" "}
-                      &nbsp;Postal code
-                    </div>
-                    <div style={{ display: "flex" }}>
                       <span>
-                        {city.trim() !== "" && country.trim() !== ""
+                        {country.trim() !== "" && postalcode.trim() !== ""
                           ? "✓"
                           : "◯"}
                       </span>{" "}
-                      &nbsp;City AND country
+                      &nbsp;Country + Postal code
+                    </div>
+                    <div style={{ display: "flex" }}>
+                      <span>
+                        {country.trim() !== "" &&
+                        city.trim() !== "" &&
+                        (state.trim() !== "" || county.trim() !== "")
+                          ? "✓"
+                          : "◯"}
+                      </span>{" "}
+                      &nbsp;Country + City + State or County
                     </div>
                   </div>
 
@@ -140,6 +162,8 @@ function App() {
                       id="county"
                       name="county"
                       placeholder="County / District"
+                      value={county}
+                      onChange={(e) => setCounty(e.target.value)}
                     />
                   </div>
 
@@ -150,6 +174,8 @@ function App() {
                       id="state"
                       name="state"
                       placeholder="State / Region"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
                     />
                   </div>
 
@@ -182,7 +208,9 @@ function App() {
                   {isLoading ? "Loading weather..." : "Get Weather"}
                 </button>
 
-                <p id="error">{error}</p>
+                <p id="error" style={{ textAlign: "center" }}>
+                  {error}
+                </p>
               </form>
             </main>
           </div>
