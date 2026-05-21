@@ -215,27 +215,28 @@ function App() {
                 <article>
                   <span>Temperature</span>
                   <strong>
-                    {weather.current?.temperature_2m}
+                    {weather.current?.temperature_2m} &nbsp;
                     {weather.current_units?.temperature_2m}
                   </strong>
                 </article>
                 <article>
                   <span>Feels like</span>
                   <strong>
-                    {weather.current?.apparent_temperature}
+                    {weather.current?.apparent_temperature} &nbsp;
                     {weather.current_units?.apparent_temperature}
                   </strong>
                 </article>
                 <article>
                   <span>Wind</span>
                   <strong>
-                    {weather.current?.wind_speed_10m}
+                    {weather.current?.wind_speed_10m} &nbsp;
                     {weather.current_units?.wind_speed_10m}
                   </strong>
                 </article>
                 <article>
-                  <span>Condition code</span>
-                  <strong>{weather.current?.weather_code}</strong>
+                  <span>Precipitation</span>
+                  <strong>{weather.current?.precipitation} &nbsp;
+                    {weather.current_units?.precipitation}</strong>
                 </article>
               </div>
             </div>
