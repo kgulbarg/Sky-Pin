@@ -5,6 +5,7 @@ function App() {
   const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
 
   const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [country, setCountry] = useState("");
   const [postalcode, setPostalcode] = useState("");
   const [error, setError] = useState("");
@@ -13,8 +14,13 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [view, setView] = useState("form");
 
+  const hasCity = city.trim() !== "";
+  const hasState = state.trim() !== "";
+  const hasCountry = country.trim() !== "";
+  const hasPostalcode = postalcode.trim() !== "";
+
   const isValid =
-    postalcode.trim() !== "" || (city.trim() !== "" && country.trim() !== "");
+    hasCountry && (hasPostalcode || (hasCity && hasState));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,11 +34,14 @@ function App() {
       postalcode: (formData.get("postalcode") || "").toString().trim(),
     };
 
+    const hasCountry = payload.country !== "";
     const hasPostalCode = payload.postalcode !== "";
-    const hasCityAndCountry = payload.city !== "" && payload.country !== "";
+    const hasCityAndState = payload.city !== "" && payload.state !== "";
 
-    if (!hasPostalCode && !hasCityAndCountry) {
-      setError("Provide either postal code, or both city and country");
+    if (!hasCountry || (!hasPostalCode && !hasCityAndState)) {
+      setError(
+        "Provide country with postal code, or country with city and state"
+      );
       return;
     }
 
@@ -105,19 +114,23 @@ function App() {
                         display: "flex",
                       }}
                     >
-                      Please provide at least one of the following:
+                      Please provide one of the following:
                     </div>
                     <div style={{ marginBottom: "0rem", display: "flex" }}>
-                      <span>{postalcode.trim() !== "" ? "✓" : "◯"}</span>{" "}
-                      &nbsp;Postal code
-                    </div>
-                    <div style={{ display: "flex" }}>
                       <span>
-                        {city.trim() !== "" && country.trim() !== ""
+                        {country.trim() !== "" && postalcode.trim() !== ""
                           ? "✓"
                           : "◯"}
                       </span>{" "}
-                      &nbsp;City AND country
+                      &nbsp;Country + Postal code
+                    </div>
+                    <div style={{ display: "flex" }}>
+                      <span>
+                        {country.trim() !== "" && city.trim() !== "" && state.trim() !== ""
+                          ? "✓"
+                          : "◯"}
+                      </span>{" "}
+                      &nbsp;Country + City + State
                     </div>
                   </div>
 
@@ -150,6 +163,8 @@ function App() {
                       id="state"
                       name="state"
                       placeholder="State / Region"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
                     />
                   </div>
 
@@ -182,7 +197,9 @@ function App() {
                   {isLoading ? "Loading weather..." : "Get Weather"}
                 </button>
 
-                <p id="error">{error}</p>
+                <p id="error" style={{ textAlign: "center" }}>
+                  {error}
+                </p>
               </form>
             </main>
           </div>

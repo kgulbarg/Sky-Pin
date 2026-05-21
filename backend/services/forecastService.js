@@ -3,6 +3,9 @@ const {
   getCoordinates
 } = require("./geocoordService");
 
+const LOCATION_INPUT_ERROR_MESSAGE =
+  "Country is required with postal code or city and state.";
+
 const {
   validateCoordinates,
   getWeatherData
@@ -14,9 +17,7 @@ async function getForecast(addressData = {}) {
   const isValid = validateLocationInput(addressData);
 
   if (!isValid) {
-    throw new Error(
-      "Provide at least one valid location field."
-    );
+    throw new Error(LOCATION_INPUT_ERROR_MESSAGE);
   }
 
   /* Get coordinates */
