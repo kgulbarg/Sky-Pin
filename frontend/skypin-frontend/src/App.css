@@ -177,7 +177,20 @@
 
 #weatherResult .back-button {
   width: fit-content;
-  min-width: unset;
+  min-width: 50px;
+  font-weight: bold;
+  padding: 12px;
+  background: #1b265b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#weatherResult .back-button:hover {
+  background: #141c45;
 }
 
 /* Responsive tweaks */
