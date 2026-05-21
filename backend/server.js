@@ -13,6 +13,7 @@ app.use(express.json());
 app.use("/api/geocoord", require("./routes/geocoord")); // Only exposed for dev testing, not used by frontend
 app.use("/api/weather", require("./routes/weather")); // Only exposed for dev testing, not used by frontend
 app.use("/api/forecast", require("./routes/forecast"));
+app.use("/api/forecast5day", require("./routes/forecast5day"));
 
 /* Health check */
 app.get("/", (req, res) => {
