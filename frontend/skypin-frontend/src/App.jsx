@@ -1,4 +1,5 @@
 import { useState } from "react";
+import WeatherCard from "./components/weatherCard.jsx";
 import "./App.css";
 
 function App() {
@@ -187,55 +188,11 @@ function App() {
             </main>
           </div>
         ) : (
-          <section id="weatherPage" aria-live="polite">
-            <div id="weatherResult">
-              <img
-                src="/logo_no_bg.webp"
-                alt="Sky Pin logo"
-                className="weather-logo"
-              />
-              <button
-                className="back-button"
-                type="button"
-                aria-label="Return to search"
-                onClick={handleSearchAgain}
-              >
-                &#9664;
-              </button>
-              <p className="weather-kicker">Weather results</p>
-              <h2>Current Weather</h2>
-              <p className="weather-location">{location}</p>
-
-              <div className="weather-grid">
-                <article>
-                  <span>Temperature</span>
-                  <strong>
-                    {weather.current?.temperature_2m} &nbsp;
-                    {weather.current_units?.temperature_2m}
-                  </strong>
-                </article>
-                <article>
-                  <span>Feels like</span>
-                  <strong>
-                    {weather.current?.apparent_temperature} &nbsp;
-                    {weather.current_units?.apparent_temperature}
-                  </strong>
-                </article>
-                <article>
-                  <span>Wind</span>
-                  <strong>
-                    {weather.current?.wind_speed_10m} &nbsp;
-                    {weather.current_units?.wind_speed_10m}
-                  </strong>
-                </article>
-                <article>
-                  <span>Precipitation</span>
-                  <strong>{weather.current?.precipitation} &nbsp;
-                    {weather.current_units?.precipitation}</strong>
-                </article>
-              </div>
-            </div>
-          </section>
+          <WeatherCard
+            location={location}
+            weather={weather}
+            onSearchAgain={handleSearchAgain}
+          />
         )}
       </section>
     </>
