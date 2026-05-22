@@ -50,7 +50,7 @@ describe('App', () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(fakeWeatherResponse)
+        json: () => Promise.resolve(fakeResponse)
       })
       .mockResolvedValueOnce({
         ok: true,
