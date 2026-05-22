@@ -1,5 +1,3 @@
-const path = require('path');
-
 describe('db/connection', () => {
   beforeEach(() => {
     jest.resetModules();

@@ -38,6 +38,10 @@
   gap: 14px;
 }
 
+.forecast-strip h3 {
+  font-weight: 500;
+}
+
 .forecast-day {
   background: #ffffff;
   border: 1px solid #e2e8f0;

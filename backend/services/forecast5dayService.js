@@ -1,6 +1,7 @@
 const {
   validateLocationInput,
-  getCoordinates
+  getCoordinates,
+  LOCATION_INPUT_ERROR_MESSAGE
 } = require("./geocoordService");
 
 const {
@@ -12,7 +13,7 @@ async function getForecast5Day(addressData = {}) {
   const isValid = validateLocationInput(addressData);
 
   if (!isValid) {
-    throw new Error("Provide at least one valid location field.");
+    throw new Error(LOCATION_INPUT_ERROR_MESSAGE);
   }
 
   const location = await getCoordinates(addressData);

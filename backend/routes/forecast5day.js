@@ -5,6 +5,9 @@ const router = express.Router();
 const {
   getForecast5Day
 } = require("../services/forecast5dayService");
+const {
+  LOCATION_INPUT_ERROR_MESSAGE
+} = require("../services/geocoordService");
 
 router.post("/", async (req, res) => {
   try {
@@ -20,7 +23,7 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error(err.message);
 
-    if (err.message === "Provide at least one valid location field.") {
+    if (err.message === LOCATION_INPUT_ERROR_MESSAGE) {
       return res.status(400).json({
         error: err.message
       });
