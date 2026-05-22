@@ -28,7 +28,7 @@ function WeatherCard({
           aria-label="Return to search"
           onClick={onSearchAgain}
         >
-          &#9664;
+          New search
         </button>
         &nbsp;&nbsp;&nbsp;
         <button
