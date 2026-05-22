@@ -12,7 +12,7 @@
 
 .forecast-result .search-button,
 .forecast-result .back-button,
-.weatherResult .forecast-button {
+#weatherResult .forecast-button {
   width: fit-content;
   min-width: 50px;
   font-weight: bold;
@@ -28,7 +28,7 @@
 
 .forecast-result .search-button:hover,
 .forecast-result .back-button:hover,
-.weatherResult .forecast-button:hover {
+#weatherResult .forecast-button:hover {
   background: #141c45;
 }
 
