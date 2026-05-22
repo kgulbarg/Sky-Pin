@@ -3,9 +3,9 @@ jest.mock('../services/weatherService');
 
 const geo = require('../services/geocoordService');
 const weather = require('../services/weatherService');
-const { getForecast } = require('../services/forecastService');
+const { getForecast5Day } = require('../services/forecast5dayService');
 
-describe('forecastService', () => {
+describe('forecast5dayService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -13,16 +13,14 @@ describe('forecastService', () => {
   test('throws when address input invalid', async () => {
     geo.validateLocationInput.mockReturnValue(false);
 
-      await expect(getForecast({})).rejects.toThrow(
-        /Country is required with postal code or city and state or county/
-      );
+    await expect(getForecast5Day({})).rejects.toThrow(/Country is required with postal code or city and state or county/);
   });
 
   test('throws when coordinates are not finite numbers', async () => {
     geo.validateLocationInput.mockReturnValue(true);
     geo.getCoordinates.mockResolvedValue({ latitude: 'abc', longitude: 'def', display_name: 'X' });
 
-    await expect(getForecast({ city: 'X' })).rejects.toThrow(/must be finite numbers/);
+    await expect(getForecast5Day({ city: 'X', state: 'Y', country: 'Z' })).rejects.toThrow(/must be finite numbers/);
   });
 
   test('throws when validateCoordinates returns error', async () => {
@@ -30,20 +28,20 @@ describe('forecastService', () => {
     geo.getCoordinates.mockResolvedValue({ latitude: '12.34', longitude: '56.78', display_name: 'X' });
     weather.validateCoordinates.mockReturnValue('bad coords');
 
-    await expect(getForecast({ city: 'X' })).rejects.toThrow(/bad coords/);
+    await expect(getForecast5Day({ city: 'X', state: 'Y', country: 'Z' })).rejects.toThrow(/bad coords/);
   });
 
   test('returns forecast on success', async () => {
     geo.validateLocationInput.mockReturnValue(true);
     geo.getCoordinates.mockResolvedValue({ latitude: '12.34', longitude: '56.78', display_name: 'X' });
     weather.validateCoordinates.mockReturnValue(null);
-    weather.getWeatherData.mockResolvedValue({ current: { temperature_2m: 10 } });
+    weather.getFiveDayWeatherData.mockResolvedValue({ daily: [{ date: '2026-01-01' }] });
 
-    const res = await getForecast({ country: 'France', postalcode: '75001' });
+    const res = await getForecast5Day({ city: 'X', state: 'Y', country: 'Z' });
 
     expect(res).toHaveProperty('location');
     expect(res.location.latitude).toBeCloseTo(12.34);
-    expect(res).toHaveProperty('weather');
-    expect(res.weather.current.temperature_2m).toBe(10);
+    expect(res).toHaveProperty('forecast');
+    expect(weather.getFiveDayWeatherData).toHaveBeenCalledWith(12.34, 56.78);
   });
 });

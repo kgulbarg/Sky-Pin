@@ -1,5 +1,9 @@
 const axios = require('axios');
-const { validateLocationInput, getCoordinates } = require('../services/geocoordService');
+const {
+  LOCATION_INPUT_ERROR_MESSAGE,
+  validateLocationInput,
+  getCoordinates
+} = require('../services/geocoordService');
 
 jest.mock('axios');
 
@@ -13,11 +17,23 @@ describe('geocoordService', () => {
     test('returns false when all fields empty or missing', () => {
       expect(validateLocationInput({})).toBe(false);
       expect(validateLocationInput({ city: '' , country: '   '})).toBe(false);
+      expect(validateLocationInput({ postalcode: '12345' })).toBe(false);
+      expect(validateLocationInput({ city: 'Paris', country: 'France' })).toBe(
+        false
+      );
     });
 
-    test('returns true when at least one field has text', () => {
-      expect(validateLocationInput({ city: 'Paris' })).toBe(true);
-      expect(validateLocationInput({ postalcode: '12345' })).toBe(true);
+    test('returns true for country plus postal code or city and state or county', () => {
+      expect(
+        validateLocationInput({ country: 'France', postalcode: '75001' })
+      ).toBe(true);
+      expect(
+        validateLocationInput({ country: 'France', city: 'Paris', state: 'IDF' })
+      ).toBe(true);
+      expect(
+        validateLocationInput({ country: 'France', city: 'Paris', county: 'Paris' })
+      ).toBe(true);
+      expect(LOCATION_INPUT_ERROR_MESSAGE).toMatch(/Country is required/);
     });
   });
 

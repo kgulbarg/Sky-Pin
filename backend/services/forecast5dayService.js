@@ -6,19 +6,16 @@ const {
 
 const {
   validateCoordinates,
-  getWeatherData
+  getFiveDayWeatherData
 } = require("./weatherService");
 
-async function getForecast(addressData = {}) {
-
-  /* Validate address input */
+async function getForecast5Day(addressData = {}) {
   const isValid = validateLocationInput(addressData);
 
   if (!isValid) {
     throw new Error(LOCATION_INPUT_ERROR_MESSAGE);
   }
 
-  /* Get coordinates */
   const location = await getCoordinates(addressData);
 
   const latitude = Number(location.latitude);
@@ -28,21 +25,13 @@ async function getForecast(addressData = {}) {
     throw new Error("Latitude and longitude must be finite numbers.");
   }
 
-  /* Validate coordinates returned */
-  const coordinateError = validateCoordinates(
-    latitude,
-    longitude
-  );
+  const coordinateError = validateCoordinates(latitude, longitude);
 
   if (coordinateError) {
     throw new Error(coordinateError);
   }
 
-  /* Get weather */
-  const weather = await getWeatherData(
-    latitude,
-    longitude
-  );
+  const forecast = await getFiveDayWeatherData(latitude, longitude);
 
   return {
     location: {
@@ -50,11 +39,10 @@ async function getForecast(addressData = {}) {
       latitude,
       longitude
     },
-
-    weather
+    forecast
   };
 }
 
 module.exports = {
-  getForecast
+  getForecast5Day
 };
