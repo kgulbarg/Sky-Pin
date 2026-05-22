@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { validateCoordinates, getWeatherData } = require('../services/weatherService');
+const { validateCoordinates, getWeatherData, getFiveDayWeatherData } = require('../services/weatherService');
 
 jest.mock('axios');
 
@@ -67,6 +67,59 @@ describe('weatherService', () => {
     test('throws when no current present', async () => {
       axios.get.mockResolvedValue({ data: {} });
       await expect(getWeatherData(1, 2)).rejects.toThrow('Weather data not found.');
+    });
+  });
+
+  describe('getFiveDayWeatherData', () => {
+    test('returns parsed five day forecast when axios provides daily data', async () => {
+      axios.get.mockResolvedValue({
+        data: {
+          latitude: 1,
+          longitude: 2,
+          generationtime_ms: 1.1,
+          elevation: 10,
+          timezone: 'UTC',
+          timezone_abbreviation: 'UTC',
+          utc_offset_seconds: 0,
+          daily_units: { temperature_2m_max: '°C' },
+          daily: {
+            time: ['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05'],
+            weather_code: [0, 1, 2, 3, 45],
+            temperature_2m_max: [10, 11, 12, 13, 14],
+            temperature_2m_min: [1, 2, 3, 4, 5],
+            apparent_temperature_max: [9, 10, 11, 12, 13],
+            apparent_temperature_min: [0, 1, 2, 3, 4],
+            daylight_duration: [1, 1, 1, 1, 1],
+            sunset: ['s', 's', 's', 's', 's'],
+            sunrise: ['r', 'r', 'r', 'r', 'r'],
+            wind_speed_10m_max: [5, 5, 5, 5, 5],
+            precipitation_probability_max: [0, 10, 20, 30, 40],
+            sunshine_duration: [1, 1, 1, 1, 1],
+            uv_index_max: [1, 1, 1, 1, 1],
+            uv_index_clear_sky_max: [1, 1, 1, 1, 1],
+            rain_sum: [0, 0, 0, 0, 0],
+            showers_sum: [0, 0, 0, 0, 0],
+            snowfall_sum: [0, 0, 0, 0, 0],
+            precipitation_sum: [0, 0, 0, 0, 0],
+            precipitation_hours: [0, 0, 0, 0, 0],
+            wind_gusts_10m_max: [10, 10, 10, 10, 10],
+            wind_direction_10m_dominant: [90, 91, 92, 93, 94],
+            shortwave_radiation_sum: [1, 1, 1, 1, 1],
+            et0_fao_evapotranspiration: [1, 1, 1, 1, 1]
+          }
+        }
+      });
+
+      const res = await getFiveDayWeatherData(1, 2);
+
+      expect(res.daily).toHaveLength(5);
+      expect(res.daily[0].temperature_2m_max).toBe(10);
+    });
+
+    test('throws when no daily present', async () => {
+      axios.get.mockResolvedValue({ data: {} });
+
+      await expect(getFiveDayWeatherData(1, 2)).rejects.toThrow('5-day forecast data not found.');
     });
   });
 });

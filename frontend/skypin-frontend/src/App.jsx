@@ -1,4 +1,6 @@
 import { useState } from "react";
+import WeatherCard from "./components/weatherCard.jsx";
+import ForecastCard from "./components/forecastCard.jsx";
 import "./App.css";
 
 function App() {
@@ -13,7 +15,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState(null);
   const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState(null);
+  const [searchPayload, setSearchPayload] = useState(null);
   const [view, setView] = useState("form");
+  const [isForecastLoading, setIsForecastLoading] = useState(false);
 
   const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
     const hasCountry = country.trim() !== "";
@@ -55,7 +60,9 @@ function App() {
     setError("");
     setView("form");
     setWeather(null);
+    setForecast(null);
     setLocation(null);
+    setSearchPayload(payload);
     setIsLoading(true);
 
     try {
@@ -76,7 +83,7 @@ function App() {
       setLocation(forecastResult.location.display_name);
 
       setWeather(forecastResult.weather);
-      setView("results");
+      setView("current");
     } catch (err) {
       setError(err.message || "Something went wrong.");
       setView("form");
@@ -88,8 +95,45 @@ function App() {
   const handleSearchAgain = () => {
     setView("form");
     setWeather(null);
+    setForecast(null);
     setLocation(null);
     setError("");
+    setSearchPayload(null);
+  };
+
+  const handleSeeForecast = async () => {
+    if (!searchPayload) {
+      setError("Search again to load the forecast.");
+      return;
+    }
+
+    setError("");
+    setIsForecastLoading(true);
+
+    try {
+      const forecastResponse = await fetch(`${apiBaseUrl}/api/forecast5day`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(searchPayload),
+      });
+
+      const forecastResult = await forecastResponse.json();
+
+      if (!forecastResponse.ok) {
+        throw new Error(forecastResult.error || "Failed to fetch forecast.");
+      }
+
+      setForecast(forecastResult.forecast);
+      setLocation(forecastResult.location.display_name);
+      setView("forecast");
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+      setView("current");
+    } finally {
+      setIsForecastLoading(false);
+    }
   };
 
   return (
@@ -215,55 +259,27 @@ function App() {
             </main>
           </div>
         ) : (
-          <section id="weatherPage" aria-live="polite">
-            <div id="weatherResult">
-              <img
-                src="/logo_no_bg.webp"
-                alt="Sky Pin logo"
-                className="weather-logo"
+          <>
+            {view === "current" && (
+              <WeatherCard
+                location={location}
+                weather={weather}
+                error={error}
+                onSearchAgain={handleSearchAgain}
+                onSeeForecast={handleSeeForecast}
+                isForecastLoading={isForecastLoading}
               />
-              <button
-                className="back-button"
-                type="button"
-                aria-label="Return to search"
-                onClick={handleSearchAgain}
-              >
-                &#9664;
-              </button>
-              <p className="weather-kicker">Weather results</p>
-              <h2>Current Weather</h2>
-              <p className="weather-location">{location}</p>
+            )}
 
-              <div className="weather-grid">
-                <article>
-                  <span>Temperature</span>
-                  <strong>
-                    {weather.current?.temperature_2m} &nbsp;
-                    {weather.current_units?.temperature_2m}
-                  </strong>
-                </article>
-                <article>
-                  <span>Feels like</span>
-                  <strong>
-                    {weather.current?.apparent_temperature} &nbsp;
-                    {weather.current_units?.apparent_temperature}
-                  </strong>
-                </article>
-                <article>
-                  <span>Wind</span>
-                  <strong>
-                    {weather.current?.wind_speed_10m} &nbsp;
-                    {weather.current_units?.wind_speed_10m}
-                  </strong>
-                </article>
-                <article>
-                  <span>Precipitation</span>
-                  <strong>{weather.current?.precipitation} &nbsp;
-                    {weather.current_units?.precipitation}</strong>
-                </article>
-              </div>
-            </div>
-          </section>
+            {view === "forecast" && (
+              <ForecastCard
+                location={location}
+                forecast={forecast}
+                onBackToCurrent={() => setView("current")}
+                onSearchAgain={handleSearchAgain}
+              />
+            )}
+          </>
         )}
       </section>
     </>
