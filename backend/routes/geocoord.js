@@ -6,6 +6,7 @@ const router = express.Router();
 
 const {
   getCoordinates,
+  LOCATION_INPUT_ERROR_MESSAGE,
   validateLocationInput
 } = require("../services/geocoordService");
 
@@ -26,7 +27,7 @@ router.post("/", async (req, res) => {
 
     if (!isValid) {
       return res.status(400).json({
-        error: "At least one location field is required."
+        error: LOCATION_INPUT_ERROR_MESSAGE
       });
     }
 

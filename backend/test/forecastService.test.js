@@ -13,7 +13,9 @@ describe('forecastService', () => {
   test('throws when address input invalid', async () => {
     geo.validateLocationInput.mockReturnValue(false);
 
-    await expect(getForecast({})).rejects.toThrow(/Provide at least one valid location field/);
+      await expect(getForecast({})).rejects.toThrow(
+        /Country is required with postal code or city and state or county/
+      );
   });
 
   test('throws when coordinates are not finite numbers', async () => {
@@ -37,7 +39,7 @@ describe('forecastService', () => {
     weather.validateCoordinates.mockReturnValue(null);
     weather.getWeatherData.mockResolvedValue({ current: { temperature_2m: 10 } });
 
-    const res = await getForecast({ city: 'X' });
+    const res = await getForecast({ country: 'France', postalcode: '75001' });
 
     expect(res).toHaveProperty('location');
     expect(res.location.latitude).toBeCloseTo(12.34);
