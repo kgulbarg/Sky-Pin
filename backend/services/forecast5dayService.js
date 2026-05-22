@@ -10,6 +10,36 @@ const {
 } = require("./weatherService");
 
 async function getForecast5Day(addressData = {}) {
+
+  const latitude = Number(addressData.latitude);
+  const longitude = Number(addressData.longitude);
+
+  const hasCoordinates =
+    addressData.latitude !== undefined &&
+    addressData.longitude !== undefined &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude);
+
+  if (hasCoordinates) {
+
+    const coordinateError = validateCoordinates(latitude, longitude);
+
+    if (coordinateError) {
+      throw new Error(coordinateError);
+    }
+
+    const forecast = await getFiveDayWeatherData(latitude, longitude);
+
+    return {
+      location: {
+        display_name: "Your current location",
+        latitude,
+        longitude
+      },
+      forecast
+    };
+  }
+
   const isValid = validateLocationInput(addressData);
 
   if (!isValid) {
@@ -18,26 +48,29 @@ async function getForecast5Day(addressData = {}) {
 
   const location = await getCoordinates(addressData);
 
-  const latitude = Number(location.latitude);
-  const longitude = Number(location.longitude);
+  const locationLatitude = Number(location.latitude);
+  const locationLongitude = Number(location.longitude);
 
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+  if (!Number.isFinite(locationLatitude) || !Number.isFinite(locationLongitude)) {
     throw new Error("Latitude and longitude must be finite numbers.");
   }
 
-  const coordinateError = validateCoordinates(latitude, longitude);
+  const resolvedCoordinateError = validateCoordinates(
+    locationLatitude,
+    locationLongitude
+  );
 
-  if (coordinateError) {
-    throw new Error(coordinateError);
+  if (resolvedCoordinateError) {
+    throw new Error(resolvedCoordinateError);
   }
 
-  const forecast = await getFiveDayWeatherData(latitude, longitude);
+  const forecast = await getFiveDayWeatherData(locationLatitude, locationLongitude);
 
   return {
     location: {
       display_name: location.display_name,
-      latitude,
-      longitude
+      latitude: locationLatitude,
+      longitude: locationLongitude
     },
     forecast
   };
