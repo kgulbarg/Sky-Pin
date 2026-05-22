@@ -1,4 +1,3 @@
-import React from "react";
 import "../styles/weatherCard.css";
 
 import { getWeatherUI } from "../utils/weatherMappings.js";
