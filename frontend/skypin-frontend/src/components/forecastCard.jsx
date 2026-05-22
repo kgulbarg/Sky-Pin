@@ -18,6 +18,7 @@ function formatForecastDate(dateValue) {
 
 function ForecastCard({ location, forecast, onBackToCurrent, onSearchAgain }) {
   const daily = forecast?.daily || [];
+  const units = forecast?.daily_units || {};
 
   return (
     <section id="weatherPage" aria-live="polite">
@@ -59,17 +60,29 @@ function ForecastCard({ location, forecast, onBackToCurrent, onSearchAgain }) {
                 <img src={weatherUI.iconUrl} alt={weatherUI.label} />
                 <h3>{weatherUI.label}</h3>
                 <p className="forecast-temp">
-                  <strong>{day.temperature_2m_max}°</strong>
-                  <span>{day.temperature_2m_min}°</span>
+                  <strong>
+                    {day.temperature_2m_max}
+                    {units.temperature_2m_max ? ` ${units.temperature_2m_max}` : null}
+                  </strong>
+                  <span>
+                    {day.temperature_2m_min}
+                    {units.temperature_2m_min ? ` ${units.temperature_2m_min}` : null}
+                  </span>
                 </p>
                 <dl>
                   <div>
                     <dt>Rain</dt>
-                    <dd>{day.rain_sum ?? 0}</dd>
+                    <dd>
+                      {day.rain_sum ?? 0}
+                      {units.rain_sum ? ` ${units.rain_sum}` : units.precipitation ? ` ${units.precipitation}` : null}
+                    </dd>
                   </div>
                   <div>
                     <dt>Wind</dt>
-                    <dd>{day.wind_speed_10m_max ?? 0}</dd>
+                    <dd>
+                      {day.wind_speed_10m_max ?? 0}
+                      {units.wind_speed_10m_max ? ` ${units.wind_speed_10m_max}` : units.wind_speed_10m ? ` ${units.wind_speed_10m}` : null}
+                    </dd>
                   </div>
                 </dl>
               </article>
