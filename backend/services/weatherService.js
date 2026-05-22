@@ -185,8 +185,7 @@ async function getFiveDayWeatherData(latitude, longitude) {
       name: data.timezone,
       abbreviation: data.timezone_abbreviation,
       utc_offset_seconds: data.utc_offset_seconds
-    }
-    ,
+    },
     daily_units: data.daily_units,
     daily: buildDailyForecast(data)
   };

@@ -4,6 +4,8 @@ import { describe, expect, test, vi } from 'vitest';
 import WeatherCard from '../components/weatherCard.jsx';
 
 describe('WeatherCard', () => {
+  globalThis.React = React;
+
   test('renders the mapped weather icon URL', () => {
     render(
       <WeatherCard

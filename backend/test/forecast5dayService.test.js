@@ -13,14 +13,14 @@ describe('forecast5dayService', () => {
   test('throws when address input invalid', async () => {
     geo.validateLocationInput.mockReturnValue(false);
 
-    await expect(getForecast5Day({})).rejects.toThrow(/Provide at least one valid location field/);
+    await expect(getForecast5Day({})).rejects.toThrow(/Country is required with postal code or city and state or county/);
   });
 
   test('throws when coordinates are not finite numbers', async () => {
     geo.validateLocationInput.mockReturnValue(true);
     geo.getCoordinates.mockResolvedValue({ latitude: 'abc', longitude: 'def', display_name: 'X' });
 
-    await expect(getForecast5Day({ city: 'X' })).rejects.toThrow(/must be finite numbers/);
+    await expect(getForecast5Day({ city: 'X', state: 'Y', country: 'Z' })).rejects.toThrow(/must be finite numbers/);
   });
 
   test('throws when validateCoordinates returns error', async () => {
@@ -28,7 +28,7 @@ describe('forecast5dayService', () => {
     geo.getCoordinates.mockResolvedValue({ latitude: '12.34', longitude: '56.78', display_name: 'X' });
     weather.validateCoordinates.mockReturnValue('bad coords');
 
-    await expect(getForecast5Day({ city: 'X' })).rejects.toThrow(/bad coords/);
+    await expect(getForecast5Day({ city: 'X', state: 'Y', country: 'Z' })).rejects.toThrow(/bad coords/);
   });
 
   test('returns forecast on success', async () => {
@@ -37,7 +37,7 @@ describe('forecast5dayService', () => {
     weather.validateCoordinates.mockReturnValue(null);
     weather.getFiveDayWeatherData.mockResolvedValue({ daily: [{ date: '2026-01-01' }] });
 
-    const res = await getForecast5Day({ city: 'X' });
+    const res = await getForecast5Day({ city: 'X', state: 'Y', country: 'Z' });
 
     expect(res).toHaveProperty('location');
     expect(res.location.latitude).toBeCloseTo(12.34);
