@@ -23,7 +23,7 @@ describe('App', () => {
   });
 
   test('submits postal code and shows results', async () => {
-    const fakeResponse = {
+    const fakeWeatherResponse = {
       location: { display_name: 'Test Place', latitude: 12.34, longitude: 56.78 },
       weather: {
         current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
@@ -31,10 +31,31 @@ describe('App', () => {
       }
     };
 
-    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(fakeResponse)
-    })));
+    const fakeForecastResponse = {
+      location: { display_name: 'Test Place', latitude: 12.34, longitude: 56.78 },
+      forecast: {
+        daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
+        daily: [
+          { date: '2026-01-01', weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14, rain_sum: 0, wind_speed_10m_max: 5 },
+          { date: '2026-01-02', weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13, rain_sum: 1, wind_speed_10m_max: 6 },
+          { date: '2026-01-03', weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12, rain_sum: 2, wind_speed_10m_max: 7 },
+          { date: '2026-01-04', weather_code: 3, temperature_2m_max: 18, temperature_2m_min: 11, rain_sum: 3, wind_speed_10m_max: 8 },
+          { date: '2026-01-05', weather_code: 45, temperature_2m_max: 17, temperature_2m_min: 10, rain_sum: 4, wind_speed_10m_max: 9 }
+        ]
+      }
+    };
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(fakeWeatherResponse)
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(fakeForecastResponse)
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
 
     render(<App />);
 
@@ -51,5 +72,11 @@ describe('App', () => {
     expect(screen.getByText('Test Place')).toBeInTheDocument();
     expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
     expect(screen.getByText(/Feels like/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /see 5-day forecast/i })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /see 5-day forecast/i }));
+
+    await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
+    expect(screen.getAllByText(/Rain/i).length).toBeGreaterThan(0);
   });
 });
