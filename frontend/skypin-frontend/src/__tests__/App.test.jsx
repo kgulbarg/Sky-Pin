@@ -20,7 +20,7 @@ describe('App', () => {
     expect(screen.getByLabelText(/Country/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Postal Code/i)).toBeInTheDocument();
 
-    const button = screen.getByRole('button', { name: /get weather/i });
+    const button = screen.getByRole('button', { name: /^Get Weather$/i });
     expect(button).toBeDisabled();
   });
 
@@ -68,7 +68,7 @@ describe('App', () => {
     const postalInput = screen.getByLabelText(/Postal Code/i);
     await user.type(postalInput, '75001');
 
-    const button = screen.getByRole('button', { name: /get weather/i });
+    const button = screen.getByRole('button', { name: /^Get Weather$/i });
     expect(button).toBeEnabled();
 
     await user.click(button);
@@ -108,7 +108,7 @@ describe('App', () => {
     await user.type(screen.getByLabelText(/State/i), 'Ile-de-France');
     await user.type(screen.getByLabelText(/Country/i), 'France');
 
-    const button = screen.getByRole('button', { name: /get weather/i });
+    const button = screen.getByRole('button', { name: /^Get Weather$/i });
     expect(button).toBeEnabled();
 
     await user.click(button);
@@ -141,7 +141,7 @@ describe('App', () => {
     await user.type(screen.getByLabelText(/County/i), 'Paris');
     await user.type(screen.getByLabelText(/Country/i), 'France');
 
-    const button = screen.getByRole('button', { name: /get weather/i });
+    const button = screen.getByRole('button', { name: /^Get Weather$/i });
     expect(button).toBeEnabled();
 
     await user.click(button);
@@ -150,5 +150,57 @@ describe('App', () => {
 
     expect(screen.getByText('Test Place 3')).toBeInTheDocument();
     expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
+  });
+
+  test('uses current location button and reuses coordinates for 5-day forecast', async () => {
+    const fakeWeatherResponse = {
+      coordinates: { latitude: 12.34, longitude: 56.78 },
+      current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
+      current: { temperature_2m: 25, apparent_temperature: 24, wind_speed_10m: 5, weather_code: 2, is_day: 1 }
+    };
+
+    const fakeForecastResponse = {
+      location: { display_name: 'Your current location', latitude: 12.34, longitude: 56.78 },
+      forecast: {
+        daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
+        daily: [{ date: '2026-06-01', weather_code: 2, temperature_2m_max: 25, temperature_2m_min: 15 }]
+      }
+    };
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeWeatherResponse) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeForecastResponse) });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    // mock geolocation
+    vi.stubGlobal('navigator', {
+      geolocation: {
+        getCurrentPosition: (success) => success({ coords: { latitude: 12.34, longitude: 56.78 } })
+      }
+    });
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    const locButton = screen.getByRole('button', { name: /get weather at your location/i });
+    await user.click(locButton);
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
+    // first fetch should be /api/weather with coordinate body
+    expect(fetchMock).toHaveBeenCalled();
+    expect(fetchMock.mock.calls[0][0]).toMatch(/\/api\/weather$/);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ latitude: 12.34, longitude: 56.78 });
+
+    // click 5-day forecast
+    await user.click(screen.getByRole('button', { name: /see 5-day forecast/i }));
+
+    await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
+
+    // second fetch should be /api/forecast5day with same coordinate body
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecast5day$/);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ latitude: 12.34, longitude: 56.78 });
   });
 });
