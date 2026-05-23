@@ -199,8 +199,8 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
 
-    // second fetch should be /api/forecast5day with same coordinate body
-    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecast5day$/);
+    // second fetch should be /api/forecastDays with same coordinate body
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ latitude: 12.34, longitude: 56.78 });
   });
 });

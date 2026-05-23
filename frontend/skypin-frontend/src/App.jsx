@@ -182,7 +182,7 @@ function App() {
     setIsForecastLoading(true);
 
     try {
-      const forecastResponse = await fetch(`${apiBaseUrl}/api/forecast5day`, {
+      const forecastResponse = await fetch(`${apiBaseUrl}/api/forecastDays`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
