@@ -44,4 +44,27 @@ describe('forecast5dayService', () => {
     expect(res).toHaveProperty('forecast');
     expect(weather.getFiveDayWeatherData).toHaveBeenCalledWith(12.34, 56.78);
   });
+
+  test('accepts numeric coordinate payload (numbers) and returns 5-day forecast', async () => {
+    weather.validateCoordinates.mockReturnValue(null);
+    weather.getFiveDayWeatherData.mockResolvedValue({ daily: [{ date: '2026-01-01' }] });
+
+    const res = await getForecast5Day({ latitude: 12.34, longitude: 56.78 });
+
+    expect(res).toHaveProperty('location');
+    expect(res.location.display_name).toMatch(/Your current location/);
+    expect(res.location.latitude).toBeCloseTo(12.34);
+    expect(res).toHaveProperty('forecast');
+    expect(weather.getFiveDayWeatherData).toHaveBeenCalledWith(12.34, 56.78);
+  });
+
+  test('accepts numeric-string coordinate payload and coerces to numbers for 5-day', async () => {
+    weather.validateCoordinates.mockReturnValue(null);
+    weather.getFiveDayWeatherData.mockResolvedValue({ daily: [{ date: '2026-01-02' }] });
+
+    const res = await getForecast5Day({ latitude: '12.34', longitude: '56.78' });
+
+    expect(res.location.latitude).toBeCloseTo(12.34);
+    expect(res.forecast.daily[0].date).toBe('2026-01-02');
+  });
 });

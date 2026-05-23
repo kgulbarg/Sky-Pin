@@ -19,6 +19,7 @@ function App() {
   const [searchPayload, setSearchPayload] = useState(null);
   const [view, setView] = useState("form");
   const [isForecastLoading, setIsForecastLoading] = useState(false);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
 
   const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
     const hasCountry = country.trim() !== "";
@@ -38,25 +39,7 @@ function App() {
     postalcode,
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-
-    const payload = {
-      city: (formData.get("city") || "").toString().trim(),
-      county: (formData.get("county") || "").toString().trim(),
-      state: (formData.get("state") || "").toString().trim(),
-      country: (formData.get("country") || "").toString().trim(),
-      postalcode: (formData.get("postalcode") || "").toString().trim(),
-    };
-
-    if (!isLocationPayloadValid(payload)) {
-      setError(
-        "Provide country with postal code, or country with city and state or county"
-      );
-      return;
-    }
-
+  const loadWeatherForPayload = async (payload) => {
     setError("");
     setView("form");
     setWeather(null);
@@ -81,7 +64,6 @@ function App() {
       }
 
       setLocation(forecastResult.location.display_name);
-
       setWeather(forecastResult.weather);
       setView("current");
     } catch (err) {
@@ -90,6 +72,95 @@ function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Your browser does not support location access.");
+      return;
+    }
+
+    setError("");
+    setIsLocationLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const payload = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+
+          setSearchPayload(payload);
+          await loadWeatherForCoordinates(payload);
+        } catch (err) {
+          setError(err.message || "Something went wrong.");
+          setView("form");
+        } finally {
+          setIsLocationLoading(false);
+        }
+      },
+      () => {
+        setError("Location access was denied or unavailable.");
+        setIsLocationLoading(false);
+      }
+    );
+  };
+
+  const loadWeatherForCoordinates = async ({ latitude, longitude }) => {
+    setError("");
+    setView("form");
+    setWeather(null);
+    setForecast(null);
+    setLocation("Your current location");
+    setIsLocationLoading(true);
+
+    try {
+      const weatherResponse = await fetch(`${apiBaseUrl}/api/weather`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ latitude, longitude }),
+      });
+
+      const weatherResult = await weatherResponse.json();
+
+      if (!weatherResponse.ok) {
+        throw new Error(weatherResult.error || "Failed to fetch weather.");
+      }
+
+      setWeather(weatherResult);
+      setView("current");
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+      setView("form");
+      setSearchPayload(null);
+    } finally {
+      setIsLocationLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const payload = {
+      city: (formData.get("city") || "").toString().trim(),
+      county: (formData.get("county") || "").toString().trim(),
+      state: (formData.get("state") || "").toString().trim(),
+      country: (formData.get("country") || "").toString().trim(),
+      postalcode: (formData.get("postalcode") || "").toString().trim(),
+    };
+
+    if (!isLocationPayloadValid(payload)) {
+      setError(
+        "Provide country with postal code, or country with city and state or county"
+      );
+      return;
+    }
+
+    await loadWeatherForPayload(payload);
   };
 
   const handleSearchAgain = () => {
@@ -143,6 +214,16 @@ function App() {
           <div className="two-column">
             <aside className="left-column">
               <img src="/logo_no_bg.webp" alt="SkyPin logo" className="logo" />
+              <button
+                type="button"
+                className="location-button"
+                onClick={handleUseCurrentLocation}
+                disabled={isLocationLoading || isLoading}
+              >
+                {isLocationLoading
+                  ? "Finding your location..."
+                  : "Get weather at your location"}
+              </button>
             </aside>
 
             <main className="right-column">
