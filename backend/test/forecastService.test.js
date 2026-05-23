@@ -46,4 +46,28 @@ describe('forecastService', () => {
     expect(res).toHaveProperty('weather');
     expect(res.weather.current.temperature_2m).toBe(10);
   });
+
+  test('accepts numeric coordinate payload (numbers) and returns weather', async () => {
+    // When coordinates are provided directly, geocoordService should not be used
+    weather.validateCoordinates.mockReturnValue(null);
+    weather.getWeatherData.mockResolvedValue({ current: { temperature_2m: 21 } });
+
+    const res = await getForecast({ latitude: 12.34, longitude: 56.78 });
+
+    expect(res).toHaveProperty('location');
+    expect(res.location.display_name).toMatch(/Your current location/);
+    expect(res.location.latitude).toBeCloseTo(12.34);
+    expect(res).toHaveProperty('weather');
+    expect(res.weather.current.temperature_2m).toBe(21);
+  });
+
+  test('accepts numeric-string coordinate payload and coerces to numbers', async () => {
+    weather.validateCoordinates.mockReturnValue(null);
+    weather.getWeatherData.mockResolvedValue({ current: { temperature_2m: 22 } });
+
+    const res = await getForecast({ latitude: '12.34', longitude: '56.78' });
+
+    expect(res.location.latitude).toBeCloseTo(12.34);
+    expect(res.weather.current.temperature_2m).toBe(22);
+  });
 });
