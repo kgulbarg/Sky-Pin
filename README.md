@@ -13,19 +13,40 @@
 
 3. Weather Icons CDN: https://cdn.meteocons.com/
 
-### Tech Stack
 
-1. Frontend - React JS
-2. Backend - Node.js (Express)
-3. Database - PostgreSQL
+## Tech Stack
+
+1. Frontend — React.js
+2. Backend — Node.js (Express)
+3. Database — PostgreSQL
 
 
-### Running Locally
-#### To Run (Tech Assessment 1 & 2)
+## Running Locally
 
-cd \Sky-Pin> docker compose up --build
+### Run Full Application (Tech Assessments 1 & 2)
 
-#### To Run (Ony Tech Assessment 1 - No persistence)
-cd \Sky-Pin\backend> node server.js
+```bash
+cd Sky-Pin
+docker compose up --build
+```
 
-cd \Sky-Pin\frontend\skypin-frontend> npm run dev
+### Run Without Persistence (Only Tech Assessment 1)
+
+#### Backend
+
+```bash
+cd Sky-Pin/backend
+node server.js
+```
+
+#### Frontend
+
+```bash
+cd Sky-Pin/frontend/skypin-frontend
+npm run dev
+```
+
+Application URLs:
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
