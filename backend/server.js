@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const express = require("express");
 const cors = require("cors");
+const { initializeDatabaseSchema } = require("./db/initSchema");
 
 const app = express();
 
@@ -24,6 +25,15 @@ app.get("/", (req, res) => {
 
 const BACKEND_PORT = parseInt(process.env.BACKEND_PORT, 10) || 3000;
 
-app.listen(BACKEND_PORT, () => {
-  console.log(`Server running on BACKEND_PORT ${BACKEND_PORT}`);
+async function startServer() {
+  await initializeDatabaseSchema();
+
+  app.listen(BACKEND_PORT, () => {
+    console.log(`Server running on BACKEND_PORT ${BACKEND_PORT}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error("Failed to initialize database schema:", error);
+  process.exit(1);
 });

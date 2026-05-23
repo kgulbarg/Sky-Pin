@@ -8,6 +8,11 @@ const {
 const {
   LOCATION_INPUT_ERROR_MESSAGE
 } = require("../services/geocoordService");
+const {
+  buildFiveDayWeatherDailyRows,
+  recordWeatherSearchWithDailyRows,
+  getTodayDateString,
+} = require("../services/weatherPersistenceService");
 
 router.post("/", async (req, res) => {
   try {
@@ -18,6 +23,18 @@ router.post("/", async (req, res) => {
     }
 
     const result = await getForecast5Day(req.body);
+
+    await recordWeatherSearchWithDailyRows({
+      city: req.body.city || null,
+      state: req.body.state || null,
+      cunty: req.body.county || null,
+      country: req.body.country || null,
+      pincode: req.body.postalcode || null,
+      latitude: result.location.latitude,
+      longitude: result.location.longitude,
+      startDate: getTodayDateString(),
+      endDate: getTodayDateString(new Date(Date.now() + 4 * 24 * 60 * 60 * 1000)),
+    }, buildFiveDayWeatherDailyRows(result.forecast));
 
     res.json(result);
   } catch (err) {

@@ -6,6 +6,11 @@ const {
   validateCoordinates,
   getWeatherData,
 } = require("../services/weatherService");
+const {
+  buildCurrentWeatherDailyRow,
+  recordWeatherSearchWithDailyRows,
+  getTodayDateString,
+} = require("../services/weatherPersistenceService");
 
 /* POST /api/weather */
 router.post("/", async (req, res) => {
@@ -32,6 +37,13 @@ router.post("/", async (req, res) => {
 
     /* Fetch weather */
     const weatherData = await getWeatherData(latitude, longitude);
+
+    await recordWeatherSearchWithDailyRows({
+      latitude,
+      longitude,
+      startDate: getTodayDateString(),
+      endDate: getTodayDateString(),
+    }, [buildCurrentWeatherDailyRow(weatherData)]);
 
     res.json(weatherData);
   } catch (err) {
