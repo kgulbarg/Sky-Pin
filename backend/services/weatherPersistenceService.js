@@ -23,6 +23,20 @@ function buildCurrentWeatherDailyRow(weatherData = {}, date = getTodayDateString
   };
 }
 
+function buildFiveDayWeatherDailyRows(forecastData = {}) {
+  const daily = Array.isArray(forecastData.daily) ? forecastData.daily : [];
+
+
+  return daily.map((day) => ({
+    date: day.date ?? null,
+    temp: day.temperature_2m_max ?? null,
+    temp_2m: day.temperature_2m_min ?? null,
+    rain: day.rain_sum ?? null,
+    wind: day.wind_speed_10m_max ?? null,
+    weatherCode: day.weather_code ?? null,
+  }));
+}
+
 async function recordWeatherSearchWithDailyRows(searchData = {}, dailyRows = []) {
   const client = await pool.connect();
 
@@ -48,6 +62,7 @@ async function recordWeatherSearchWithDailyRows(searchData = {}, dailyRows = [])
 
 module.exports = {
   buildCurrentWeatherDailyRow,
+  buildFiveDayWeatherDailyRows,
   getTodayDateString,
   recordWeatherSearchWithDailyRows,
 };
