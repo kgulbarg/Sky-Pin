@@ -26,6 +26,51 @@ describe("weatherPersistenceService", () => {
     });
   });
 
+  test("buildFiveDayWeatherDailyRows maps each forecast day to a daily row", () => {
+    const { buildFiveDayWeatherDailyRows } = require("../services/weatherPersistenceService");
+
+
+    expect(
+      buildFiveDayWeatherDailyRows({
+        daily: [
+          {
+            date: "2026-05-23",
+            temperature_2m_max: 21,
+            temperature_2m_min: 12,
+            rain_sum: 3,
+            wind_speed_10m_max: 11,
+            weather_code: 3,
+          },
+          {
+            date: "2026-05-24",
+            temperature_2m_max: 22,
+            temperature_2m_min: 13,
+            rain_sum: 0,
+            wind_speed_10m_max: 8,
+            weather_code: 1,
+          },
+        ],
+      })
+    ).toEqual([
+      {
+        date: "2026-05-23",
+        temp: 21,
+        temp_2m: 12,
+        rain: 3,
+        wind: 11,
+        weatherCode: 3,
+      },
+      {
+        date: "2026-05-24",
+        temp: 22,
+        temp_2m: 13,
+        rain: 0,
+        wind: 8,
+        weatherCode: 1,
+      },
+    ]);
+  });
+
   test("creates a search row and returns the id", async () => {
     const query = jest.fn().mockResolvedValue({ rows: [{ id: 42 }] });
 
