@@ -34,7 +34,6 @@ function ForecastCard({
   onDateRangeSubmit,
   isDateRangeLoading = false,
   dateRangeError = "",
-  error = "",
 }) {
   const daily = forecast?.daily || [];
   const units = forecast?.daily_units || {};
