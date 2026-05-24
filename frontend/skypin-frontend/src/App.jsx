@@ -141,7 +141,11 @@ function App() {
       setWeather(forecastResult.weather);
       setView("current");
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
       setView("form");
     } finally {
       setIsLoading(false);
@@ -168,7 +172,11 @@ function App() {
           setSearchPayload(payload);
           await loadWeatherForCoordinates(payload);
         } catch (err) {
+          if (err.message === "Failed to fetch") {
+            setError("Failed to fetch - Server down");
+          } else {
           setError(err.message || "Something went wrong.");
+          }
           setView("form");
         } finally {
           setIsLocationLoading(false);
@@ -207,7 +215,11 @@ function App() {
       setWeather(weatherResult);
       setView("current");
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
       setView("form");
       setSearchPayload(null);
     } finally {
@@ -265,7 +277,11 @@ function App() {
 
       setPastSearches(result.searches || []);
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
       setView("form");
     } finally {
       setIsPastSearchesLoading(false);
@@ -296,7 +312,11 @@ function App() {
       link.remove();
       window.URL.revokeObjectURL(objectUrl);
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
     } finally {
       setIsDownloadLoading(false);
     }
@@ -348,7 +368,11 @@ function App() {
         ),
       );
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
     }
   };
 
@@ -381,7 +405,11 @@ function App() {
         currentSearches.filter((item) => item.id !== search.id),
       );
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
     }
   };
 
@@ -422,7 +450,11 @@ function App() {
       setForecastTitle("5-Day Forecast");
       setView("forecast");
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setError("Failed to fetch - Server down");
+      } else {
       setError(err.message || "Something went wrong.");
+      }
       setView("current");
     } finally {
       setIsForecastLoading(false);
@@ -483,7 +515,11 @@ function App() {
         setView("forecast");
       }
     } catch (err) {
+      if (err.message === "Failed to fetch") {
+        setDateRangeError("Failed to fetch - Server down");
+      } else {
       setDateRangeError(err.message || "Something went wrong.");
+      }
     } finally {
       setIsDateRangeLoading(false);
     }
