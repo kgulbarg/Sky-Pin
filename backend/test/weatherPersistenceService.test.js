@@ -101,8 +101,8 @@ describe("weatherPersistenceService", () => {
   test("lists past weather searches ordered by search time", async () => {
     const query = jest.fn().mockResolvedValue({
       rows: [
-        { id: 2, search_time: "2026-05-23T12:00:00Z" },
-        { id: 1, search_time: "2026-05-22T12:00:00Z" },
+        { id: 2, search_time: "2026-05-23T12:00:00Z", updated_at: "2026-05-23T12:01:00Z" },
+        { id: 1, search_time: "2026-05-22T12:00:00Z", updated_at: "2026-05-22T12:01:00Z" },
       ],
     });
 
@@ -118,6 +118,53 @@ describe("weatherPersistenceService", () => {
     expect(query).toHaveBeenCalledTimes(1);
     expect(query.mock.calls[0][0]).toContain("FROM weather_searches");
     expect(query.mock.calls[0][0]).toContain("ORDER BY search_time DESC, id DESC");
+  });
+
+  test("updates past search notes and returns the updated row", async () => {
+    const query = jest.fn().mockResolvedValue({
+      rows: [
+        {
+          id: 7,
+          search_time: "2026-05-23T12:00:00Z",
+          updated_at: "2026-05-24T12:00:00Z",
+          user_notes: "updated note",
+        },
+      ],
+    });
+
+    jest.doMock("../db/connection", () => ({
+      query,
+    }));
+
+    const { saveWeatherSearchNotes } = require("../services/weatherPersistenceService");
+
+    const savedSearch = await saveWeatherSearchNotes(7, "updated note");
+
+    expect(savedSearch).toMatchObject({
+      id: 7,
+      user_notes: "updated note",
+    });
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0][0]).toContain("UPDATE weather_searches");
+    expect(query.mock.calls[0][0]).toContain("updated_at = NOW()");
+  });
+
+  test("deletes a past weather search", async () => {
+    const query = jest.fn().mockResolvedValue({
+      rows: [{ id: 7 }],
+    });
+
+    jest.doMock("../db/connection", () => ({
+      query,
+    }));
+
+    const { removeWeatherSearch } = require("../services/weatherPersistenceService");
+
+    const deletedSearch = await removeWeatherSearch(7);
+
+    expect(deletedSearch).toEqual({ id: 7 });
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0][0]).toContain("DELETE FROM weather_searches");
   });
 
   test("recordWeatherSearchWithDailyRows commits search and daily rows together", async () => {
