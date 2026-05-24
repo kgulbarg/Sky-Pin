@@ -8,9 +8,25 @@ const {
 } = require("../services/weatherService");
 const {
   buildCurrentWeatherDailyRow,
+  getPastWeatherSearches,
   recordWeatherSearchWithDailyRows,
   getTodayDateString,
 } = require("../services/weatherPersistenceService");
+
+/* GET /api/weather/searches */
+router.get("/searches", async (req, res) => {
+  try {
+    const searches = await getPastWeatherSearches();
+
+    res.json({ searches });
+  } catch (err) {
+    console.error(err.message);
+
+    res.status(500).json({
+      error: err.message || "Failed to load past searches.",
+    });
+  }
+});
 
 /* POST /api/weather */
 router.post("/", async (req, res) => {
