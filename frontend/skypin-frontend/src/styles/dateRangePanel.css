@@ -1,0 +1,80 @@
+.date-range-panel {
+  margin: 20px 0 8px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  display: grid;
+  gap: 16px;
+}
+
+.date-range-copy h3 {
+  margin: 4px 0 6px;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.date-range-help {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.date-range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.date-range-field {
+  display: grid;
+  gap: 8px;
+}
+
+.date-range-field label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.date-range-field input {
+  width: 80%;
+  min-height: 32px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  color: #0f172a;
+  background: #fff;
+}
+
+.date-range-field input:focus {
+  outline: none;
+  border-color: #1b265b;
+  box-shadow: 0 0 0 3px rgba(27, 38, 91, 0.12);
+}
+
+.date-range-error {
+  margin: 0;
+  color: #dc2626;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.date-range-submit {
+  width: fit-content;
+}
+
+@media (max-width: 600px) {
+  .date-range-panel {
+    padding: 16px;
+  }
+
+  .date-range-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .date-range-submit {
+    width: 100%;
+  }
+}

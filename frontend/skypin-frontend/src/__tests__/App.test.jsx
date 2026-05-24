@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { afterEach, describe, test, expect, vi } from 'vitest';
@@ -202,5 +202,103 @@ describe('App', () => {
     // second fetch should be /api/forecastDays with same coordinate body
     expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ latitude: 12.34, longitude: 56.78 });
+  });
+
+  test('toggles date range form and submits a custom range from the results card', async () => {
+    const fakeResponse = {
+      location: { display_name: 'Range Place', latitude: 12.34, longitude: 56.78 },
+      weather: {
+        current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
+        current: { temperature_2m: 23, apparent_temperature: 22, wind_speed_10m: 4, weather_code: 1 }
+      }
+    };
+
+    const fakeForecastResponse = {
+      location: { display_name: 'Range Place', latitude: 12.34, longitude: 56.78 },
+      forecast: {
+        daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
+        daily: [
+          { date: '2026-05-20', weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14 },
+          { date: '2026-05-21', weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13 },
+          { date: '2026-05-22', weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12 }
+        ]
+      }
+    };
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeResponse) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeForecastResponse) });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Country/i), 'France');
+    await user.type(screen.getByLabelText(/Postal Code/i), '75001');
+    await user.click(screen.getByRole('button', { name: /^Get Weather$/i }));
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /view date range/i }));
+
+    const startInput = screen.getByLabelText(/Start date/i);
+    const endInput = screen.getByLabelText(/End date/i);
+    const startDate = startInput.value;
+    const endDate = endInput.value;
+
+    const dateRangeForm = startInput.closest('form');
+    fireEvent.submit(dateRangeForm);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    await waitFor(() => expect(screen.getAllByRole('article').length).toBe(7));
+    expect(screen.getAllByText(/Rain/i).length).toBe(3);
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({
+      city: '',
+      county: '',
+      state: '',
+      country: 'France',
+      postalcode: '75001',
+      startDate,
+      endDate
+    });
+  });
+
+  test('shows backend date range validation errors above the submit button', async () => {
+    const fakeResponse = {
+      location: { display_name: 'Range Place', latitude: 12.34, longitude: 56.78 },
+      weather: {
+        current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
+        current: { temperature_2m: 23, apparent_temperature: 22, wind_speed_10m: 4, weather_code: 1 }
+      }
+    };
+
+    const validationError = 'Start date is too far in the past. Earliest allowed is 2026-03-24.';
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeResponse) })
+      .mockResolvedValueOnce({ ok: false, json: () => Promise.resolve({ error: validationError }) });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Country/i), 'France');
+    await user.type(screen.getByLabelText(/Postal Code/i), '75001');
+    await user.click(screen.getByRole('button', { name: /^Get Weather$/i }));
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /view date range/i }));
+
+    const dateRangeForm = screen.getByLabelText(/Start date/i).closest('form');
+    fireEvent.submit(dateRangeForm);
+
+    await waitFor(() => expect(screen.getByText(validationError)).toBeInTheDocument());
   });
 });

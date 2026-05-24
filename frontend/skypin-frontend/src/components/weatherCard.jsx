@@ -1,5 +1,7 @@
 import "../styles/weatherCard.css";
 
+import DateRangeForm from "./dateRangeForm.jsx";
+import RangeForecastCard from "./rangeForecastCard.jsx";
 import { getWeatherUI } from "../utils/weatherMappings.js";
 
 function WeatherCard({
@@ -8,7 +10,18 @@ function WeatherCard({
   error,
   onSearchAgain,
   onSeeForecast,
-  isForecastLoading = false
+  showDateRangeForm = false,
+  onToggleDateRange,
+  dateRangeStart,
+  dateRangeEnd,
+  onDateRangeStartChange,
+  onDateRangeEndChange,
+  onDateRangeSubmit,
+  rangeForecast = null,
+  rangeForecastTitle = "Day-wise weather data for custom date range",
+  isForecastLoading = false,
+  isDateRangeLoading = false,
+  dateRangeError = "",
 }) {
   const current = weather?.current;
   const units = weather?.current_units;
@@ -21,23 +34,45 @@ function WeatherCard({
   return (
     <section id="weatherPage" aria-live="polite">
       <div id="weatherResult">
-        <button
-          className="back-button"
-          type="button"
-          aria-label="Return to search"
-          onClick={onSearchAgain}
-        >
-          New search
-        </button>
-        &nbsp;&nbsp;&nbsp;
-        <button
-          className="forecast-button"
-          type="button"
-          onClick={onSeeForecast}
-          disabled={isForecastLoading}
-        >
-          {isForecastLoading ? "Loading 5-day forecast..." : "See 5-day forecast"}
-        </button>
+        <div className="weather-actions">
+          <button
+            className="action-button"
+            type="button"
+            aria-label="Return to search"
+            onClick={onSearchAgain}
+          >
+            New search
+          </button>
+
+          <button
+            className="action-button"
+            type="button"
+            onClick={onSeeForecast}
+            disabled={isForecastLoading}
+          >
+            {isForecastLoading ? "Loading 5-day forecast..." : "See 5-day forecast"}
+          </button>
+
+          <button
+            className="action-button"
+            type="button"
+            onClick={onToggleDateRange}
+          >
+            {showDateRangeForm ? "Hide Date Range Search" : "View Date Range Search"}
+          </button>
+        </div>
+
+        {showDateRangeForm ? (
+          <DateRangeForm
+            startDate={dateRangeStart}
+            endDate={dateRangeEnd}
+            onStartDateChange={onDateRangeStartChange}
+            onEndDateChange={onDateRangeEndChange}
+            onSubmit={onDateRangeSubmit}
+            isLoading={isDateRangeLoading}
+            error={dateRangeError}
+          />
+        ) : null}
 
         <div className="weather-header-row">
           <div className="weather-text">
@@ -91,6 +126,8 @@ function WeatherCard({
             </strong>
           </article>
         </div>
+
+        <RangeForecastCard rangeForecast={rangeForecast} title={rangeForecastTitle} />
       </div>
     </section>
   );

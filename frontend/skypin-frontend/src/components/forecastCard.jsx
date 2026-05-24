@@ -1,5 +1,6 @@
 import "../styles/forecastCard.css";
 
+import DateRangeForm from "./dateRangeForm.jsx";
 import { getWeatherUI } from "../utils/weatherMappings.js";
 
 function formatForecastDate(dateValue) {
@@ -16,7 +17,23 @@ function formatForecastDate(dateValue) {
   }).format(date);
 }
 
-function ForecastCard({ location, forecast, onBackToCurrent, onSearchAgain }) {
+function ForecastCard({
+  location,
+  forecast,
+  onBackToCurrent,
+  onSearchAgain,
+  title = "5-Day Forecast",
+  showDateRangeForm = false,
+  onToggleDateRange,
+  dateRangeStart,
+  dateRangeEnd,
+  onDateRangeStartChange,
+  onDateRangeEndChange,
+  onDateRangeSubmit,
+  isDateRangeLoading = false,
+  dateRangeError = "",
+  error = "",
+}) {
   const daily = forecast?.daily || [];
   const units = forecast?.daily_units || {};
 
@@ -25,7 +42,7 @@ function ForecastCard({ location, forecast, onBackToCurrent, onSearchAgain }) {
       <div id="weatherResult" className="forecast-result">
         <div className="forecast-actions">
           <button
-            className="back-button"
+            className="action-button"
             type="button"
             aria-label="Back to current weather"
             onClick={onBackToCurrent}
@@ -34,18 +51,46 @@ function ForecastCard({ location, forecast, onBackToCurrent, onSearchAgain }) {
           </button>
 
           <button
-            className="search-button"
+            className="action-button"
             type="button"
             onClick={onSearchAgain}
           >
             New search
           </button>
+
+          <button
+            className="action-button"
+            type="button"
+            onClick={onBackToCurrent}
+          >
+            Current weather
+          </button>
+
+          <button
+            className="action-button"
+            type="button"
+            onClick={onToggleDateRange}
+          >
+            {showDateRangeForm ? "Hide date range" : "View date range"}
+          </button>
         </div>
+
+        {showDateRangeForm ? (
+          <DateRangeForm
+            startDate={dateRangeStart}
+            endDate={dateRangeEnd}
+            onStartDateChange={onDateRangeStartChange}
+            onEndDateChange={onDateRangeEndChange}
+            onSubmit={onDateRangeSubmit}
+            isLoading={isDateRangeLoading}
+            error={dateRangeError}
+          />
+        ) : null}
 
         <div className="weather-header-row">
           <div className="weather-text">
             <p className="weather-kicker">Weather results</p>
-            <h2>5-Day Forecast</h2>
+            <h2>{title}</h2>
             <p className="weather-location">{location}</p>
           </div>
         </div>

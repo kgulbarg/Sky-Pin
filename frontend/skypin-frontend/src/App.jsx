@@ -3,6 +3,17 @@ import WeatherCard from "./components/weatherCard.jsx";
 import ForecastCard from "./components/forecastCard.jsx";
 import "./App.css";
 
+function getLocalDateString(date = new Date()) {
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 10);
+}
+
+function addDays(dateString, days) {
+  const date = new Date(`${dateString}T12:00:00`);
+  date.setDate(date.getDate() + days);
+  return getLocalDateString(date);
+}
+
 function App() {
   const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
 
@@ -20,6 +31,16 @@ function App() {
   const [view, setView] = useState("form");
   const [isForecastLoading, setIsForecastLoading] = useState(false);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [showDateRangeForm, setShowDateRangeForm] = useState(false);
+  const [dateRangeStart, setDateRangeStart] = useState("");
+  const [dateRangeEnd, setDateRangeEnd] = useState("");
+  const [isDateRangeLoading, setIsDateRangeLoading] = useState(false);
+  const [dateRangeError, setDateRangeError] = useState("");
+  const [forecastTitle, setForecastTitle] = useState("5-Day Forecast");
+  const [rangeForecast, setRangeForecast] = useState(null);
+  const [rangeForecastTitle, setRangeForecastTitle] = useState(
+    "Day-wise weather data for custom date range"
+  );
 
   const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
     const hasCountry = country.trim() !== "";
@@ -44,7 +65,11 @@ function App() {
     setView("form");
     setWeather(null);
     setForecast(null);
+    setRangeForecast(null);
     setLocation(null);
+    setForecastTitle("5-Day Forecast");
+    setShowDateRangeForm(false);
+    setDateRangeError("");
     setSearchPayload(payload);
     setIsLoading(true);
 
@@ -112,7 +137,11 @@ function App() {
     setView("form");
     setWeather(null);
     setForecast(null);
+    setRangeForecast(null);
     setLocation("Your current location");
+    setForecastTitle("5-Day Forecast");
+    setShowDateRangeForm(false);
+    setDateRangeError("");
     setIsLocationLoading(true);
 
     try {
@@ -167,9 +196,36 @@ function App() {
     setView("form");
     setWeather(null);
     setForecast(null);
+    setRangeForecast(null);
     setLocation(null);
     setError("");
     setSearchPayload(null);
+    setShowDateRangeForm(false);
+    setDateRangeStart("");
+    setDateRangeEnd("");
+    setIsDateRangeLoading(false);
+    setDateRangeError("");
+    setForecastTitle("5-Day Forecast");
+    setRangeForecast(null);
+    setRangeForecastTitle("Day-wise weather data for custom date range");
+  };
+
+  const loadForecastDays = async (payload) => {
+    const forecastResponse = await fetch(`${apiBaseUrl}/api/forecastDays`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const forecastResult = await forecastResponse.json();
+
+    if (!forecastResponse.ok) {
+      throw new Error(forecastResult.error || "Failed to fetch forecast.");
+    }
+
+    return forecastResult;
   };
 
   const handleSeeForecast = async () => {
@@ -180,30 +236,77 @@ function App() {
 
     setError("");
     setIsForecastLoading(true);
+    setShowDateRangeForm(false);
+    setRangeForecast(null);
+    setDateRangeError("");
 
     try {
-      const forecastResponse = await fetch(`${apiBaseUrl}/api/forecastDays`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(searchPayload),
-      });
-
-      const forecastResult = await forecastResponse.json();
-
-      if (!forecastResponse.ok) {
-        throw new Error(forecastResult.error || "Failed to fetch forecast.");
-      }
-
+      const forecastResult = await loadForecastDays(searchPayload);
       setForecast(forecastResult.forecast);
       setLocation(forecastResult.location.display_name);
+      setForecastTitle("5-Day Forecast");
       setView("forecast");
     } catch (err) {
       setError(err.message || "Something went wrong.");
       setView("current");
     } finally {
       setIsForecastLoading(false);
+    }
+  };
+
+  const handleToggleDateRange = () => {
+    setError("");
+    setDateRangeError("");
+    setShowDateRangeForm((current) => {
+      const nextState = !current;
+
+      if (nextState && !dateRangeStart && !dateRangeEnd) {
+        const startDate = getLocalDateString();
+        setDateRangeStart(startDate);
+        setDateRangeEnd(addDays(startDate, 4));
+      }
+
+      return nextState;
+    });
+  };
+
+  const handleDateRangeSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!searchPayload) {
+      setError("Search again to load date range weather.");
+      return;
+    }
+
+    if (!dateRangeStart || !dateRangeEnd) {
+      setDateRangeError("Choose both a start date and an end date.");
+      return;
+    }
+
+    setError("");
+    setDateRangeError("");
+    setIsDateRangeLoading(true);
+
+    try {
+      const forecastResult = await loadForecastDays({
+        ...searchPayload,
+        startDate: dateRangeStart,
+        endDate: dateRangeEnd,
+      });
+
+      if (view === "current") {
+        setRangeForecast(forecastResult.forecast);
+        setRangeForecastTitle("Day-wise weather data for custom date range");
+      } else {
+        setForecast(forecastResult.forecast);
+        setLocation(forecastResult.location.display_name);
+        setForecastTitle("Day-wise weather data for custom date range");
+        setView("forecast");
+      }
+    } catch (err) {
+      setDateRangeError(err.message || "Something went wrong.");
+    } finally {
+      setIsDateRangeLoading(false);
     }
   };
 
@@ -346,9 +449,20 @@ function App() {
                 location={location}
                 weather={weather}
                 error={error}
+                dateRangeError={dateRangeError}
                 onSearchAgain={handleSearchAgain}
                 onSeeForecast={handleSeeForecast}
+                showDateRangeForm={showDateRangeForm}
+                onToggleDateRange={handleToggleDateRange}
+                dateRangeStart={dateRangeStart}
+                dateRangeEnd={dateRangeEnd}
+                onDateRangeStartChange={setDateRangeStart}
+                onDateRangeEndChange={setDateRangeEnd}
+                onDateRangeSubmit={handleDateRangeSubmit}
+                rangeForecast={rangeForecast}
+                rangeForecastTitle={rangeForecastTitle}
                 isForecastLoading={isForecastLoading}
+                isDateRangeLoading={isDateRangeLoading}
               />
             )}
 
@@ -356,8 +470,19 @@ function App() {
               <ForecastCard
                 location={location}
                 forecast={forecast}
+                error={error}
                 onBackToCurrent={() => setView("current")}
                 onSearchAgain={handleSearchAgain}
+                title={forecastTitle}
+                showDateRangeForm={showDateRangeForm}
+                onToggleDateRange={handleToggleDateRange}
+                dateRangeStart={dateRangeStart}
+                dateRangeEnd={dateRangeEnd}
+                onDateRangeStartChange={setDateRangeStart}
+                onDateRangeEndChange={setDateRangeEnd}
+                onDateRangeSubmit={handleDateRangeSubmit}
+                isDateRangeLoading={isDateRangeLoading}
+                dateRangeError={dateRangeError}
               />
             )}
           </>
