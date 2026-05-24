@@ -14,6 +14,37 @@ function addDays(dateString, days) {
   return getLocalDateString(date);
 }
 
+function formatRangeDate(dateValue) {
+  if (!dateValue) {
+    return "";
+  }
+
+  const date = new Date(`${dateValue}T12:00:00`);
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function getRangeForecastTitle(startDate, endDate) {
+  const formattedStart = formatRangeDate(startDate);
+  const formattedEnd = formatRangeDate(endDate);
+
+  if (!formattedStart || !formattedEnd) {
+    return "Day-wise weather data for custom date range";
+  }
+
+  return (
+  <>
+    Day-wise weather data from
+    <br />
+    {formattedStart} to {formattedEnd}
+  </>
+);
+}
+
 function App() {
   const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
 
@@ -294,13 +325,15 @@ function App() {
         endDate: dateRangeEnd,
       });
 
+      setShowDateRangeForm(false);
+
       if (view === "current") {
         setRangeForecast(forecastResult.forecast);
-        setRangeForecastTitle("Day-wise weather data for custom date range");
+        setRangeForecastTitle(getRangeForecastTitle(dateRangeStart, dateRangeEnd));
       } else {
         setForecast(forecastResult.forecast);
         setLocation(forecastResult.location.display_name);
-        setForecastTitle("Day-wise weather data for custom date range");
+        setForecastTitle(getRangeForecastTitle(dateRangeStart, dateRangeEnd));
         setView("forecast");
       }
     } catch (err) {

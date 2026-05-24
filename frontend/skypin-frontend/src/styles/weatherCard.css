@@ -26,6 +26,15 @@
   margin-bottom: 18px;
 }
 
+.result-location-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.h3[aria-hidden="true"] {
+  font-size: 24px;
+}
+
 .action-button {
   width: fit-content;
   min-height: 50px;
@@ -64,8 +73,14 @@
 .weather-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 2rem;
+  margin-bottom: 12px;
+}
+.weather-label {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #334155;
 }
 
 .weather-text {
@@ -88,19 +103,19 @@
 }
 
 .weather-visual {
-  position: relative;
-  min-width: 180px;
-  min-height: 180px;
+  min-width: 150px;
+  min-height: 150px;
   text-align: center;
+  overflow: hidden;
+  margin-right: 20px;
 }
 
 .meteocon {
-  position: absolute;
-  top: -115px;
-  right: -30px;
-  display: block;
-  width: 290px;
-  height: 290px;
+  transform: scale(1.4);
+  transform-origin: center;
+  display: flex;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   margin: 0 auto;
   z-index: 10;

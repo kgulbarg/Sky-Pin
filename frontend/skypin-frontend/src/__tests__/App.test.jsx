@@ -241,7 +241,7 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
 
-    await user.click(screen.getByRole('button', { name: /view date range/i }));
+    await user.click(screen.getByRole('button', { name: /View Date Range Search/i }));
 
     const startInput = screen.getByLabelText(/Start date/i);
     const endInput = screen.getByLabelText(/End date/i);
@@ -253,7 +253,9 @@ describe('App', () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
 
-    await waitFor(() => expect(screen.getAllByRole('article').length).toBe(7));
+    await waitFor(() => expect(screen.queryByText(/Current Weather/i)).not.toBeInTheDocument());
+    expect(screen.queryByLabelText(/Start date/i)).not.toBeInTheDocument();
+    expect(screen.getAllByRole('article').length).toBe(3);
     expect(screen.getAllByText(/Rain/i).length).toBe(3);
     expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({
@@ -294,7 +296,7 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
 
-    await user.click(screen.getByRole('button', { name: /view date range/i }));
+    await user.click(screen.getByRole('button', { name: /View Date Range Search/i }));
 
     const dateRangeForm = screen.getByLabelText(/Start date/i).closest('form');
     fireEvent.submit(dateRangeForm);

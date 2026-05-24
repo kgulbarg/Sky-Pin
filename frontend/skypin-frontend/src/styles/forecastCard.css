@@ -11,6 +11,15 @@
   margin-bottom: 18px;
 }
 
+.result-location-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.h3[aria-hidden="true"] {
+  font-size: 24px;
+}
+
 .forecast-result .action-button,
 #weatherResult .action-button {
   width: fit-content;
@@ -27,7 +36,7 @@
 }
 
 .forecast-result .search-button:hover,
-.forecast-result .back-button:hover,
+.forecast-result
 #weatherResult .forecast-button:hover {
   background: #141c45;
 }

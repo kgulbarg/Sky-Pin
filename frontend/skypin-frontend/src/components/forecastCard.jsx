@@ -3,6 +3,8 @@ import "../styles/forecastCard.css";
 import DateRangeForm from "./dateRangeForm.jsx";
 import { getWeatherUI } from "../utils/weatherMappings.js";
 
+import { BsGeoAltFill } from "react-icons/bs";
+
 function formatForecastDate(dateValue) {
   if (!dateValue) {
     return "";
@@ -40,16 +42,11 @@ function ForecastCard({
   return (
     <section id="weatherPage" aria-live="polite">
       <div id="weatherResult" className="forecast-result">
-        <div className="forecast-actions">
-          <button
-            className="action-button"
-            type="button"
-            aria-label="Back to current weather"
-            onClick={onBackToCurrent}
-          >
-            &#9664;
-          </button>
+        <div className="result-location-row">
+            <h3 aria-hidden="true"><BsGeoAltFill /> &nbsp;{location}</h3>
+        </div>
 
+        <div className="forecast-actions">
           <button
             className="action-button"
             type="button"
@@ -61,6 +58,7 @@ function ForecastCard({
           <button
             className="action-button"
             type="button"
+            aria-label="Back to current weather"
             onClick={onBackToCurrent}
           >
             Current weather
@@ -71,7 +69,7 @@ function ForecastCard({
             type="button"
             onClick={onToggleDateRange}
           >
-            {showDateRangeForm ? "Hide date range" : "View date range"}
+            {showDateRangeForm ? "Hide Date Range Search" : "View Date Range Search"}
           </button>
         </div>
 
@@ -91,7 +89,6 @@ function ForecastCard({
           <div className="weather-text">
             <p className="weather-kicker">Weather results</p>
             <h2>{title}</h2>
-            <p className="weather-location">{location}</p>
           </div>
         </div>
 
