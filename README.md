@@ -2,22 +2,88 @@
 
 # Sky Pin
 
-## Design
+Lightweight weather lookup and visualization app with an interactive map preview for each searched location.
 
-### APIs
+## Overview
+
+Sky Pin lets users search places (geocoding), view current weather and multi-day forecasts, save and revisit past searches, and open an interactive map centered on the selected location.
+
+Key features:
+- Search locations and view current weather
+- 5-day forecast and date-range forecasting
+- Past searches list with quick re-open
+- "View on map" interactive preview (drag & zoom)
+
+## External Services
 
 1. Geocoding API: https://geocode.maps.co/search  
-   (Needs API Key)
+   (Requires API Key)
 
 2. Weather API: https://api.open-meteo.com/v1/forecast
 
-### Tech Stack
+3. Weather Icons CDN: https://cdn.meteocons.com/
 
-1. Frontend - React JS
-2. Backend - Node.js (Express)
-3. Database - PostgreSQL
+4. Interactive map: OpenStreetMap embed
 
-### To run
-cd /backend> node server.js
 
-cd /frontend/skypin-frontend> npm run dev
+## Tech Stack
+
+- Frontend: React (Vite)
+- Backend: Node.js + Express
+- Database: PostgreSQL (optional — persistence used when running with Docker)
+
+## Quick Start
+
+There are two main ways to run the app locally: with Docker (recommended for full stack + database) or running backend/frontend separately for fast frontend development.
+
+### Prerequisites
+
+1. Docker Destop must be installed
+2. Git must be installed
+
+### Steps
+
+1. Clone the repository
+```bash
+git clone <repo-url>
+```
+2. Navigate into the project folder.
+```bash
+cd SkyPin
+```
+3. Create a local environment configuration file from the example template.
+```bash
+cp .env.example .env
+```
+4. In the `.env` file, add your Geocoding API Key.
+
+5. Build and start all application containers.
+```bash
+docker compose up --build
+```
+
+### Application Components:
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
+- Database: Inside Docker network as postgres:5432 - Can be accessed through Docker Desktop: Containers -> weather-postgres -> Exec
+
+## Running Unit Tests
+1. Frontend
+
+```bash
+cd frontend\skipin-frontend
+npm test
+```
+
+2. Backend
+```bash
+cd backend
+npm test
+```
+
+## Troubleshooting
+
+- If `docker compose up` fails, check that ports `5173` and `5000` are free or adjust the compose file.
+- If the frontend can't reach the backend during dev, ensure `server.js` is running and the API base URL in the frontend matches `http://localhost:5000`.
+- To test backend APIs, see `docs/api.md`.

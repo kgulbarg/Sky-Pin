@@ -128,10 +128,11 @@
   }
 }
 
-#center {
+/* #center {
   display: flex;
   flex-direction: column;
   gap: 25px;
+  align-items: stretch;
   place-content: center;
   place-items: center;
   flex-grow: 1;
@@ -140,13 +141,25 @@
     padding: 32px 20px 24px;
     gap: 18px;
   }
+} */
+
+#center {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: stretch;
+  place-content: center;
+  place-items: center;
+  flex-grow: 1;
 }
 
 /* Two-column layout: logo left, content right */
 .two-column {
+  height: 100%;
   display: flex;
   width: 100%;
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
 }
 
 .left-column {

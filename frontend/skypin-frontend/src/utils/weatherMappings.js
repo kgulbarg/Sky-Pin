@@ -165,8 +165,8 @@ const WEATHER_MAP = {
 
   80: {
     label: "Light Rain Showers",
-    iconDay: "overcast-drizzle-day.svg",
-    iconNight: "overcast-drizzle-night.svg",
+    iconDay: "drizzle.svg",
+    iconNight: "drizzle.svg",
     theme: "rainy"
   },
 

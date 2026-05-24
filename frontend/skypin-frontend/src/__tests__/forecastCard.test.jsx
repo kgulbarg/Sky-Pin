@@ -26,20 +26,20 @@ describe('ForecastCard', () => {
 
     render(
       <ForecastCard
-        location="Test Location"
+        location={{ display_name: 'Test Location', latitude: 12.34, longitude: 56.78 }}
         forecast={sampleForecast}
         onBackToCurrent={onBackToCurrent}
         onSearchAgain={onSearchAgain}
+        onToggleDateRange={vi.fn()}
+        onViewMap={vi.fn()}
       />
     );
 
     expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument();
     expect(screen.getByText('Test Location')).toBeInTheDocument();
 
-    // weather icon and label from mapping (code 0 -> Clear Sky)
     expect(screen.getByAltText('Clear Sky')).toBeInTheDocument();
 
-    // Rain and Wind labels and values
     expect(screen.getAllByText(/Rain/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Wind/i).length).toBeGreaterThan(0);
 
@@ -50,5 +50,28 @@ describe('ForecastCard', () => {
 
     await user.click(screen.getByRole('button', { name: /New search/i }));
     expect(onSearchAgain).toHaveBeenCalled();
+  });
+
+  test('opens the map when the map button is clicked', async () => {
+    const onViewMap = vi.fn();
+
+    render(
+      <ForecastCard
+        location={{ display_name: 'Test Location', latitude: 12.34, longitude: 56.78 }}
+        forecast={{ daily_units: {}, daily: [] }}
+        onBackToCurrent={vi.fn()}
+        onSearchAgain={vi.fn()}
+        onToggleDateRange={vi.fn()}
+        onViewMap={onViewMap}
+      />
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /view on map/i }));
+
+    expect(onViewMap).toHaveBeenCalledWith({
+      display_name: 'Test Location',
+      latitude: 12.34,
+      longitude: 56.78,
+    });
   });
 });

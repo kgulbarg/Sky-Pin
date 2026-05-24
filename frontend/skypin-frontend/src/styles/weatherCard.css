@@ -1,4 +1,6 @@
 #weatherPage {
+  margin-top: 5%;
+  margin-bottom: 5%;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -17,6 +19,57 @@
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
+.weather-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.result-location-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.result-location-row h3[aria-hidden="true"] {
+  font-size: 24px;
+  margin: 0;
+  flex: 1;
+  font-weight: 500;
+}
+
+.location-map-button {
+  margin-left: auto;
+}
+
+.action-button {
+  width: fit-content;
+  min-height: 50px;
+  padding: 12px 16px;
+  background: #1b265b;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.action-button:hover:not(:disabled) {
+  background: #141c45;
+  transform: translateY(-1px);
+}
+
+.action-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
 #weatherResult h2 {
   margin: 0;
   font-size: 2rem;
@@ -30,8 +83,14 @@
 .weather-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 2rem;
+  margin-bottom: 12px;
+}
+.weather-label {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #334155;
 }
 
 .weather-text {
@@ -54,19 +113,19 @@
 }
 
 .weather-visual {
-  position: relative;
-  min-width: 180px;
-  min-height: 180px;
+  min-width: 150px;
+  min-height: 150px;
   text-align: center;
+  overflow: hidden;
+  margin-right: 20px;
 }
 
 .meteocon {
-  position: absolute;
-  top: -115px;
-  right: -30px;
-  display: block;
-  width: 290px;
-  height: 290px;
+  transform: scale(1.4);
+  transform-origin: center;
+  display: flex;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   margin: 0 auto;
   z-index: 10;
@@ -108,50 +167,6 @@
   color: #0f172a;
 }
 
-#weatherResult .back-button {
-  width: fit-content;
-  min-width: 50px;
-  min-height: 50px;
-  font-weight: bold;
-  padding: 12px 16px;
-  background: #1b265b;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-#weatherResult .back-button:hover {
-  background: #141c45;
-}
-
-#weatherResult .forecast-button {
-  width: fit-content;
-  min-width: 50px;
-  min-height: 50px;
-  font-weight: bold;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  background: #1b265b;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-#weatherResult .forecast-button:hover {
-  background: #141c45;
-}
-
-#weatherResult .forecast-button:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-
 .weather-error {
   margin-top: 6px;
   color: #dc2626;
@@ -183,25 +198,15 @@
     grid-template-columns: 1fr;
   }
 
-  #weatherResult .back-button {
-    width: fit-content;
-    min-width: 50px;
-    font-weight: bold;
-    padding: 12px 16px;
-    background: #1b265b;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s ease;
+  .weather-actions {
+    flex-direction: column;
   }
 
-  #weatherResult .back-button:hover {
-    background: #141c45;
-  }
-
-  #weatherResult .forecast-button {
+  .action-button {
     width: 100%;
+  }
+
+  .location-map-button {
+    margin-left: 0;
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { afterEach, describe, test, expect, vi } from 'vitest';
@@ -76,13 +76,24 @@ describe('App', () => {
     await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
 
     expect(screen.getByText('Test Place')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /view on map/i })).toBeInTheDocument();
     expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
     expect(screen.getByText(/Feels like/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /see 5-day forecast/i })).toBeInTheDocument();
 
+    await user.click(screen.getByRole('button', { name: /view on map/i }));
+
+    await waitFor(() => expect(screen.getByText(/Map view/i)).toBeInTheDocument());
+    expect(screen.getByText('Test Place')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /back to weather/i }));
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
     await userEvent.click(screen.getByRole('button', { name: /see 5-day forecast/i }));
 
     await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /view on map/i })).toBeInTheDocument();
     expect(screen.getAllByText(/Rain/i).length).toBeGreaterThan(0);
   });
 
@@ -198,9 +209,224 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /see 5-day forecast/i }));
 
     await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /view on map/i })).toBeInTheDocument();
 
-    // second fetch should be /api/forecast5day with same coordinate body
-    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecast5day$/);
+    // second fetch should be /api/forecastDays with same coordinate body
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ latitude: 12.34, longitude: 56.78 });
+  });
+
+  test('toggles date range form and submits a custom range from the results card', async () => {
+    const fakeResponse = {
+      location: { display_name: 'Range Place', latitude: 12.34, longitude: 56.78 },
+      weather: {
+        current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
+        current: { temperature_2m: 23, apparent_temperature: 22, wind_speed_10m: 4, weather_code: 1 }
+      }
+    };
+
+    const fakeForecastResponse = {
+      location: { display_name: 'Range Place', latitude: 12.34, longitude: 56.78 },
+      forecast: {
+        daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
+        daily: [
+          { date: '2026-05-20', weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14 },
+          { date: '2026-05-21', weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13 },
+          { date: '2026-05-22', weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12 }
+        ]
+      }
+    };
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeResponse) })
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeForecastResponse) });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Country/i), 'France');
+    await user.type(screen.getByLabelText(/Postal Code/i), '75001');
+    await user.click(screen.getByRole('button', { name: /^Get Weather$/i }));
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /View Date Range Search/i }));
+
+    const startInput = screen.getByLabelText(/Start date/i);
+    const endInput = screen.getByLabelText(/End date/i);
+    const startDate = startInput.value;
+    const endDate = endInput.value;
+
+    const dateRangeForm = startInput.closest('form');
+    fireEvent.submit(dateRangeForm);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    await waitFor(() => expect(screen.queryByText(/Current Weather/i)).not.toBeInTheDocument());
+    expect(screen.queryByLabelText(/Start date/i)).not.toBeInTheDocument();
+    expect(screen.getAllByRole('article').length).toBe(3);
+    expect(screen.getAllByText(/Rain/i).length).toBe(3);
+    expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({
+      city: '',
+      county: '',
+      state: '',
+      country: 'France',
+      postalcode: '75001',
+      startDate,
+      endDate
+    });
+  });
+
+  test('shows backend date range validation errors above the submit button', async () => {
+    const fakeResponse = {
+      location: { display_name: 'Range Place', latitude: 12.34, longitude: 56.78 },
+      weather: {
+        current_units: { temperature_2m: '°C', apparent_temperature: '°C', wind_speed_10m: 'm/s' },
+        current: { temperature_2m: 23, apparent_temperature: 22, wind_speed_10m: 4, weather_code: 1 }
+      }
+    };
+
+    const validationError = 'Start date is too far in the past. Earliest allowed is 2026-03-24.';
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeResponse) })
+      .mockResolvedValueOnce({ ok: false, json: () => Promise.resolve({ error: validationError }) });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Country/i), 'France');
+    await user.type(screen.getByLabelText(/Postal Code/i), '75001');
+    await user.click(screen.getByRole('button', { name: /^Get Weather$/i }));
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /View Date Range Search/i }));
+
+    const dateRangeForm = screen.getByLabelText(/Start date/i).closest('form');
+    fireEvent.submit(dateRangeForm);
+
+    await waitFor(() => expect(screen.getByText(validationError)).toBeInTheDocument());
+  });
+
+  test('loads and displays past searches when the history button is clicked', async () => {
+    const pastSearchesResponse = {
+      searches: [
+        {
+          id: 1,
+          search_time: '2026-05-23T12:00:00Z',
+          updated_at: '2026-05-24T12:00:00Z',
+          city: 'Paris',
+          state: 'Ile-de-France',
+          cunty: null,
+          country: 'France',
+          pincode: '75001',
+          latitude: 48.8566,
+          longitude: 2.3522,
+          start_date: '2026-05-23',
+          end_date: '2026-05-23',
+          user_notes: 'morning check'
+        }
+      ]
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(pastSearchesResponse)
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /past searches/i }));
+
+    await waitFor(() => expect(screen.getByText(/Past Searches/i)).toBeInTheDocument());
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toMatch(/\/api\/weather\/searches$/);
+    expect(screen.getByText(/Paris, Ile-de-France, France, 75001/i)).toBeInTheDocument();
+    expect(screen.getByText(/morning check/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add notes/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute(
+      'title',
+      'delete record and related weather data'
+    );
+  });
+
+  test('adds notes and deletes a past search from the history table', async () => {
+    const pastSearchesResponse = {
+      searches: [
+        {
+          id: 1,
+          search_time: '2026-05-23T12:00:00Z',
+          updated_at: '2026-05-24T12:00:00Z',
+          city: 'Paris',
+          state: 'Ile-de-France',
+          cunty: null,
+          country: 'France',
+          pincode: '75001',
+          latitude: 48.8566,
+          longitude: 2.3522,
+          start_date: '2026-05-23',
+          end_date: '2026-05-23',
+          user_notes: 'morning check'
+        }
+      ]
+    };
+
+    const updatedSearchResponse = {
+      search: {
+        id: 1,
+        updated_at: '2026-05-24T13:00:00Z',
+        user_notes: 'new note'
+      }
+    };
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(pastSearchesResponse)
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(updatedSearchResponse)
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ deletedSearchId: 1 })
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('prompt', vi.fn(() => 'new note'));
+    vi.stubGlobal('confirm', vi.fn(() => true));
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /past searches/i }));
+
+    await waitFor(() => expect(screen.getByText(/Past Searches/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /add notes/i }));
+
+    await waitFor(() => expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/weather\/searches\/1\/notes$/));
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ userNotes: 'new note' });
+    expect(screen.getByText('new note')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /delete/i }));
+
+    await waitFor(() => expect(fetchMock.mock.calls[2][0]).toMatch(/\/api\/weather\/searches\/1$/));
+    expect(screen.getByText(/No past searches yet/i)).toBeInTheDocument();
   });
 });
