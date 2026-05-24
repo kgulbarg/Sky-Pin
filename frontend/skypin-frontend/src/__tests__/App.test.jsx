@@ -76,13 +76,24 @@ describe('App', () => {
     await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
 
     expect(screen.getByText('Test Place')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /view on map/i })).toBeInTheDocument();
     expect(screen.getByText(/Temperature/i)).toBeInTheDocument();
     expect(screen.getByText(/Feels like/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /see 5-day forecast/i })).toBeInTheDocument();
 
+    await user.click(screen.getByRole('button', { name: /view on map/i }));
+
+    await waitFor(() => expect(screen.getByText(/Map view/i)).toBeInTheDocument());
+    expect(screen.getByText('Test Place')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /back to weather/i }));
+
+    await waitFor(() => expect(screen.getByText(/Current Weather/i)).toBeInTheDocument());
+
     await userEvent.click(screen.getByRole('button', { name: /see 5-day forecast/i }));
 
     await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /view on map/i })).toBeInTheDocument();
     expect(screen.getAllByText(/Rain/i).length).toBeGreaterThan(0);
   });
 
@@ -198,6 +209,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: /see 5-day forecast/i }));
 
     await waitFor(() => expect(screen.getByText(/5-Day Forecast/i)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /view on map/i })).toBeInTheDocument();
 
     // second fetch should be /api/forecastDays with same coordinate body
     expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/forecastDays$/);

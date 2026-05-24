@@ -6,12 +6,29 @@ import { getWeatherUI } from "../utils/weatherMappings.js";
 
 import { BsGeoAltFill } from "react-icons/bs";
 
+function getLocationLabel(location) {
+  if (!location) {
+    return "";
+  }
+
+  if (typeof location === "string") {
+    return location;
+  }
+
+  return location.display_name || "";
+}
+
+function hasCoordinates(location) {
+  return location && location.latitude != null && location.longitude != null;
+}
+
 function WeatherCard({
   location,
   weather,
   error,
   onSearchAgain,
   onSeeForecast,
+  onViewMap,
   showDateRangeForm = false,
   onToggleDateRange,
   dateRangeStart,
@@ -33,11 +50,23 @@ function WeatherCard({
     current?.is_day === 1
   );
 
+  const locationLabel = getLocationLabel(location);
+  const canViewMap = hasCoordinates(location);
+
   return (
     <section id="weatherPage" aria-live="polite">
       <div id="weatherResult">
         <div className="result-location-row">
-            <h3 aria-hidden="true"><BsGeoAltFill /> &nbsp;{location}</h3>
+            <h3 aria-hidden="true"><BsGeoAltFill /> &nbsp;{locationLabel}</h3>
+            {canViewMap ? (
+              <button
+                className="action-button location-map-button"
+                type="button"
+                onClick={() => onViewMap?.(location)}
+              >
+                View on map
+              </button>
+            ) : null}
         </div>
 
         <div className="weather-actions">
@@ -86,7 +115,7 @@ function WeatherCard({
               <div className="weather-text">
                 <p className="weather-kicker">Weather results</p>
                 <h2>Current Weather</h2> <br/>
-                <text class="weather-label">{weatherUI.label}</text>
+                <span className="weather-label">{weatherUI.label}</span>
               </div>
 
               <div className="weather-visual">
