@@ -33,6 +33,8 @@ function PastSearchesCard({
   isLoading = false,
   error = "",
   onSearchAgain,
+  onAddNotes,
+  onDeleteSearch,
 }) {
   return (
     <section id="searchesPage" aria-live="polite">
@@ -79,6 +81,7 @@ function PastSearchesCard({
                   <th>Date Range</th>
                   <th>Notes</th>
                   <th>Last updated</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -103,6 +106,26 @@ function PastSearchesCard({
                     
                     <td>{search.user_notes || "-"}</td>
                     <td>{formatSearchTime(search.updated_at)}</td>
+                                        <td>
+                                          <div className="past-searches-actions">
+                                            <button
+                                              className="past-searches-action-button"
+                                              type="button"
+                                              onClick={() => onAddNotes?.(search)}
+                                            >
+                                              Add notes
+                                            </button>
+                                            <button
+                                              className="past-searches-action-button past-searches-action-button--danger"
+                                              type="button"
+                                              title="delete record and related weather data"
+                                              aria-label="Delete record and related weather data"
+                                              onClick={() => onDeleteSearch?.(search)}
+                                            >
+                                              Delete
+                                            </button>
+                                          </div>
+                                        </td>
                   </tr>
                 ))}
               </tbody>

@@ -263,6 +263,88 @@ function App() {
     }
   };
 
+  const handleAddPastSearchNotes = async (search) => {
+    const nextNotes = window.prompt(
+      "Add notes for this search:",
+      search.user_notes || ""
+    );
+
+    if (nextNotes === null) {
+      return;
+    }
+
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${apiBaseUrl}/api/weather/searches/${search.id}/notes`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userNotes: nextNotes.trim() || null }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save notes.");
+      }
+
+      const savedSearch = result.search || null;
+      const nextNoteValue = savedSearch?.user_notes ?? (nextNotes.trim() || null);
+
+      setPastSearches((currentSearches) =>
+        currentSearches.map((item) =>
+          item.id === search.id
+            ? {
+                ...item,
+                user_notes: nextNoteValue,
+                updated_at: savedSearch?.updated_at ?? item.updated_at,
+              }
+            : item
+        )
+      );
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    }
+  };
+
+  const handleDeletePastSearch = async (search) => {
+    const confirmed = window.confirm(
+      "Delete this record and its related weather data?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${apiBaseUrl}/api/weather/searches/${search.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to delete past search.");
+      }
+
+      setPastSearches((currentSearches) =>
+        currentSearches.filter((item) => item.id !== search.id)
+      );
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    }
+  };
+
   const loadForecastDays = async (payload) => {
     const forecastResponse = await fetch(`${apiBaseUrl}/api/forecastDays`, {
       method: "POST",
@@ -558,6 +640,8 @@ function App() {
                 isLoading={isPastSearchesLoading}
                 error={error}
                 onSearchAgain={handleSearchAgain}
+                onAddNotes={handleAddPastSearchNotes}
+                onDeleteSearch={handleDeletePastSearch}
               />
             )}
           </>

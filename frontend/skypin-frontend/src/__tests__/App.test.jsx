@@ -310,6 +310,7 @@ describe('App', () => {
         {
           id: 1,
           search_time: '2026-05-23T12:00:00Z',
+          updated_at: '2026-05-24T12:00:00Z',
           city: 'Paris',
           state: 'Ile-de-France',
           cunty: null,
@@ -343,5 +344,77 @@ describe('App', () => {
     expect(fetchMock.mock.calls[0][0]).toMatch(/\/api\/weather\/searches$/);
     expect(screen.getByText(/Paris, Ile-de-France, France, 75001/i)).toBeInTheDocument();
     expect(screen.getByText(/morning check/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add notes/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /delete/i })).toHaveAttribute(
+      'title',
+      'delete record and related weather data'
+    );
+  });
+
+  test('adds notes and deletes a past search from the history table', async () => {
+    const pastSearchesResponse = {
+      searches: [
+        {
+          id: 1,
+          search_time: '2026-05-23T12:00:00Z',
+          updated_at: '2026-05-24T12:00:00Z',
+          city: 'Paris',
+          state: 'Ile-de-France',
+          cunty: null,
+          country: 'France',
+          pincode: '75001',
+          latitude: 48.8566,
+          longitude: 2.3522,
+          start_date: '2026-05-23',
+          end_date: '2026-05-23',
+          user_notes: 'morning check'
+        }
+      ]
+    };
+
+    const updatedSearchResponse = {
+      search: {
+        id: 1,
+        updated_at: '2026-05-24T13:00:00Z',
+        user_notes: 'new note'
+      }
+    };
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(pastSearchesResponse)
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(updatedSearchResponse)
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ deletedSearchId: 1 })
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('prompt', vi.fn(() => 'new note'));
+    vi.stubGlobal('confirm', vi.fn(() => true));
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /past searches/i }));
+
+    await waitFor(() => expect(screen.getByText(/Past Searches/i)).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /add notes/i }));
+
+    await waitFor(() => expect(fetchMock.mock.calls[1][0]).toMatch(/\/api\/weather\/searches\/1\/notes$/));
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({ userNotes: 'new note' });
+    expect(screen.getByText('new note')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /delete/i }));
+
+    await waitFor(() => expect(fetchMock.mock.calls[2][0]).toMatch(/\/api\/weather\/searches\/1$/));
+    expect(screen.getByText(/No past searches yet/i)).toBeInTheDocument();
   });
 });
