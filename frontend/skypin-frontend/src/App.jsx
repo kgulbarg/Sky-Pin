@@ -1,6 +1,7 @@
 import { useState } from "react";
 import WeatherCard from "./components/weatherCard.jsx";
 import ForecastCard from "./components/forecastCard.jsx";
+import LocationMapCard from "./components/locationMapCard.jsx";
 import PastSearchesCard from "./components/pastSearchesCard.jsx";
 import "./App.css";
 
@@ -61,6 +62,8 @@ function App() {
   const [forecast, setForecast] = useState(null);
   const [searchPayload, setSearchPayload] = useState(null);
   const [view, setView] = useState("form");
+  const [mapLocation, setMapLocation] = useState(null);
+  const [mapReturnView, setMapReturnView] = useState("current");
   const [isForecastLoading, setIsForecastLoading] = useState(false);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [showDateRangeForm, setShowDateRangeForm] = useState(false);
@@ -82,10 +85,29 @@ function App() {
     setForecast(null);
     setRangeForecast(null);
     setLocation(null);
+    setMapLocation(null);
     setForecastTitle("5-Day Forecast");
     setShowDateRangeForm(false);
     setDateRangeError("");
     setRangeForecastTitle("Day-wise weather data for custom date range");
+  };
+
+  const handleOpenMap = (locationData) => {
+    if (
+      !locationData ||
+      locationData.latitude == null ||
+      locationData.longitude == null
+    ) {
+      return;
+    }
+
+    setMapLocation(locationData);
+    setMapReturnView(view);
+    setView("map");
+  };
+
+  const handleCloseMap = () => {
+    setView(mapReturnView);
   };
 
   const isLocationPayloadValid = ({
@@ -137,14 +159,14 @@ function App() {
         throw new Error(forecastResult.error || "Failed to fetch forecast.");
       }
 
-      setLocation(forecastResult.location.display_name);
+      setLocation(forecastResult.location);
       setWeather(forecastResult.weather);
       setView("current");
     } catch (err) {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
       setView("form");
     } finally {
@@ -175,7 +197,7 @@ function App() {
           if (err.message === "Failed to fetch") {
             setError("Failed to fetch - Server down");
           } else {
-          setError(err.message || "Something went wrong.");
+            setError(err.message || "Something went wrong.");
           }
           setView("form");
         } finally {
@@ -194,7 +216,11 @@ function App() {
     setView("form");
     resetWeatherViews();
     setPastSearches([]);
-    setLocation("Your current location");
+    setLocation({
+      display_name: "Your current location",
+      latitude,
+      longitude,
+    });
     setIsLocationLoading(true);
 
     try {
@@ -218,7 +244,7 @@ function App() {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
       setView("form");
       setSearchPayload(null);
@@ -280,7 +306,7 @@ function App() {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
       setView("form");
     } finally {
@@ -315,7 +341,7 @@ function App() {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
     } finally {
       setIsDownloadLoading(false);
@@ -371,7 +397,7 @@ function App() {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
     }
   };
@@ -408,7 +434,7 @@ function App() {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
     }
   };
@@ -446,14 +472,14 @@ function App() {
     try {
       const forecastResult = await loadForecastDays(searchPayload);
       setForecast(forecastResult.forecast);
-      setLocation(forecastResult.location.display_name);
+      setLocation(forecastResult.location);
       setForecastTitle("5-Day Forecast");
       setView("forecast");
     } catch (err) {
       if (err.message === "Failed to fetch") {
         setError("Failed to fetch - Server down");
       } else {
-      setError(err.message || "Something went wrong.");
+        setError(err.message || "Something went wrong.");
       }
       setView("current");
     } finally {
@@ -510,7 +536,7 @@ function App() {
         );
       } else {
         setForecast(forecastResult.forecast);
-        setLocation(forecastResult.location.display_name);
+        setLocation(forecastResult.location);
         setForecastTitle(getRangeForecastTitle(dateRangeStart, dateRangeEnd));
         setView("forecast");
       }
@@ -518,7 +544,7 @@ function App() {
       if (err.message === "Failed to fetch") {
         setDateRangeError("Failed to fetch - Server down");
       } else {
-      setDateRangeError(err.message || "Something went wrong.");
+        setDateRangeError(err.message || "Something went wrong.");
       }
     } finally {
       setIsDateRangeLoading(false);
@@ -693,6 +719,7 @@ function App() {
                 dateRangeError={dateRangeError}
                 onSearchAgain={handleSearchAgain}
                 onSeeForecast={handleSeeForecast}
+                onViewMap={handleOpenMap}
                 showDateRangeForm={showDateRangeForm}
                 onToggleDateRange={handleToggleDateRange}
                 dateRangeStart={dateRangeStart}
@@ -714,6 +741,7 @@ function App() {
                 error={error}
                 onBackToCurrent={() => setView("current")}
                 onSearchAgain={handleSearchAgain}
+                onViewMap={handleOpenMap}
                 title={forecastTitle}
                 showDateRangeForm={showDateRangeForm}
                 onToggleDateRange={handleToggleDateRange}
@@ -724,6 +752,13 @@ function App() {
                 onDateRangeSubmit={handleDateRangeSubmit}
                 isDateRangeLoading={isDateRangeLoading}
                 dateRangeError={dateRangeError}
+              />
+            )}
+
+            {view === "map" && (
+              <LocationMapCard
+                location={mapLocation}
+                onClose={handleCloseMap}
               />
             )}
 

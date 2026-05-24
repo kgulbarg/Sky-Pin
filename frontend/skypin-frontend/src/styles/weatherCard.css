@@ -28,11 +28,21 @@
 
 .result-location-row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
-.h3[aria-hidden="true"] {
+.result-location-row h3[aria-hidden="true"] {
   font-size: 24px;
+  margin: 0;
+  flex: 1;
+  font-weight: 500;
+}
+
+.location-map-button {
+  margin-left: auto;
 }
 
 .action-button {
@@ -194,5 +204,9 @@
 
   .action-button {
     width: 100%;
+  }
+
+  .location-map-button {
+    margin-left: 0;
   }
 }

@@ -9,7 +9,7 @@ describe('WeatherCard', () => {
   test('renders the mapped weather icon URL', () => {
     render(
       <WeatherCard
-        location="Test Place"
+        location={{ display_name: 'Test Place', latitude: 12.34, longitude: 56.78 }}
         weather={{
           current_units: {
             temperature_2m: '°C',
@@ -28,6 +28,7 @@ describe('WeatherCard', () => {
         }}
         onSearchAgain={vi.fn()}
         onSeeForecast={vi.fn()}
+        onViewMap={vi.fn()}
       />
     );
 
@@ -37,5 +38,30 @@ describe('WeatherCard', () => {
       'src',
       expect.stringContaining('clear-day.svg')
     );
+  });
+
+  test('shows a map button when coordinates are available', () => {
+    const onViewMap = vi.fn();
+
+    render(
+      <WeatherCard
+        location={{ display_name: 'Test Place', latitude: 12.34, longitude: 56.78 }}
+        weather={{
+          current_units: {},
+          current: { weather_code: 0, is_day: 1 },
+        }}
+        onSearchAgain={vi.fn()}
+        onSeeForecast={vi.fn()}
+        onViewMap={onViewMap}
+      />
+    );
+
+    screen.getByRole('button', { name: /view on map/i }).click();
+
+    expect(onViewMap).toHaveBeenCalledWith({
+      display_name: 'Test Place',
+      latitude: 12.34,
+      longitude: 56.78,
+    });
   });
 });
