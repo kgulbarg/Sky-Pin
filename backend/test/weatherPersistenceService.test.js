@@ -120,6 +120,38 @@ describe("weatherPersistenceService", () => {
     expect(query.mock.calls[0][0]).toContain("ORDER BY search_time DESC, id DESC");
   });
 
+  test("builds a CSV export for weather data rows", () => {
+    const { buildWeatherDataCsv } = require("../services/weatherPersistenceService");
+
+    const csv = buildWeatherDataCsv([
+      {
+        search_id: 7,
+        search_time: "2026-05-23T12:00:00.000Z",
+        updated_at: "2026-05-23T12:01:00.000Z",
+        city: "Norristown",
+        state: "PA",
+        cunty: "Montgomery",
+        country: "United States",
+        pincode: "19401",
+        latitude: 40.1148787,
+        longitude: -75.3433705,
+        start_date: "2026-05-23",
+        end_date: "2026-05-27",
+        user_notes: 'Needs "rain" updates',
+        daily_id: 99,
+        daily_date: "2026-05-23",
+        temp: 19.7,
+        temp_2m: 12.7,
+        rain: 12,
+        wind: 15.5,
+        weather_code: 65,
+      },
+    ]);
+
+    expect(csv).toContain("search_id,search_time,updated_at,city,state,cunty,country,pincode,latitude,longitude,start_date,end_date,user_notes,daily_id,daily_date,temp,temp_2m,rain,wind,weather_code");
+    expect(csv).toContain('7,2026-05-23T12:00:00.000Z,2026-05-23T12:01:00.000Z,Norristown,PA,Montgomery,United States,19401,40.1148787,-75.3433705,2026-05-23,2026-05-27,"Needs ""rain"" updates",99,2026-05-23,19.7,12.7,12,15.5,65');
+  });
+
   test("updates past search notes and returns the updated row", async () => {
     const query = jest.fn().mockResolvedValue({
       rows: [

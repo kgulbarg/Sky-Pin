@@ -5,6 +5,22 @@ import { getWeatherUI } from "../utils/weatherMappings.js";
 
 import { BsGeoAltFill } from "react-icons/bs";
 
+function getLocationLabel(location) {
+  if (!location) {
+    return "";
+  }
+
+  if (typeof location === "string") {
+    return location;
+  }
+
+  return location.display_name || "";
+}
+
+function hasCoordinates(location) {
+  return location && location.latitude != null && location.longitude != null;
+}
+
 function formatForecastDate(dateValue) {
   if (!dateValue) {
     return "";
@@ -24,6 +40,7 @@ function ForecastCard({
   forecast,
   onBackToCurrent,
   onSearchAgain,
+  onViewMap,
   title = "5-Day Forecast",
   showDateRangeForm = false,
   onToggleDateRange,
@@ -37,12 +54,23 @@ function ForecastCard({
 }) {
   const daily = forecast?.daily || [];
   const units = forecast?.daily_units || {};
+  const locationLabel = getLocationLabel(location);
+  const canViewMap = hasCoordinates(location);
 
   return (
     <section id="weatherPage" aria-live="polite">
       <div id="weatherResult" className="forecast-result">
         <div className="result-location-row">
-            <h3 aria-hidden="true"><BsGeoAltFill /> &nbsp;{location}</h3>
+            <h3 aria-hidden="true"><BsGeoAltFill /> &nbsp;{locationLabel}</h3>
+            {canViewMap ? (
+              <button
+                className="action-button location-map-button"
+                type="button"
+                onClick={() => onViewMap?.(location)}
+              >
+                View on map
+              </button>
+            ) : null}
         </div>
 
         <div className="forecast-actions">
