@@ -9,11 +9,31 @@ const {
 const {
   buildCurrentWeatherDailyRow,
   getPastWeatherSearches,
+  getWeatherDataCsv,
   removeWeatherSearch,
   recordWeatherSearchWithDailyRows,
   saveWeatherSearchNotes,
   getTodayDateString,
 } = require("../services/weatherPersistenceService");
+
+/* GET /api/weather/export */
+router.get("/export", async (req, res) => {
+  try {
+    const csv = await getWeatherDataCsv();
+
+    res
+      .status(200)
+      .setHeader("Content-Type", "text/csv; charset=utf-8")
+      .setHeader("Content-Disposition", 'attachment; filename="weather-data.csv"')
+      .send(csv);
+  } catch (err) {
+    console.error(err.message);
+
+    res.status(500).json({
+      error: err.message || "Failed to export weather data.",
+    });
+  }
+});
 
 /* GET /api/weather/searches */
 router.get("/searches", async (req, res) => {

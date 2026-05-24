@@ -98,7 +98,7 @@ Examples returning 200 with weather data in response body:
 	}
 
 - Endpoint: `DELETE http://localhost:5000/api/weather/searches/:searchId`
-	- Deletes a past search and its related weather rows.
+	- Deletes a past search from `weather_searches` and all weather rows referenced by that search in `weather_daily`.
 	- Returns `{ "deletedSearchId": <id> }` on success (200).
 
 	Example successful response (200):
@@ -109,3 +109,22 @@ Examples returning 200 with weather data in response body:
 Notes:
 - All past-searches endpoints are rooted at `/api/weather` in the server.
 - Standard HTTP status codes are used: `200` for success, `400` for bad requests (e.g. invalid id), `404` for not found, and `500` for server errors.
+
+### Export API - Download weather data (CSV)
+
+- Endpoint: `GET http://localhost:5000/api/weather/export`
+	- Returns a CSV file attachment named `weather-data.csv`.
+	- Response headers:
+		- `Content-Type: text/csv; charset=utf-8`
+		- `Content-Disposition: attachment; filename="weather-data.csv"`
+	- CSV columns (in order):
+		`search_id`, `search_time`, `updated_at`, `city`, `state`, `cunty`, `country`, `pincode`, `latitude`, `longitude`, `start_date`, `end_date`, `user_notes`, `daily_id`, `daily_date`, `temp`, `temp_2m`, `rain`, `wind`, `weather_code`.
+	- Notes:
+		- The CSV is generated from saved searches in `weather_searches` joined to their daily rows in `weather_daily`. There will be one output row for each joined row.
+		- The number of rows in the CSV is same as the number of records in `weather_daily` table.
+
+	Example (download via curl):
+
+	```bash
+	curl -fSL -o weather-data.csv "http://localhost:5000/api/weather/export"
+	```

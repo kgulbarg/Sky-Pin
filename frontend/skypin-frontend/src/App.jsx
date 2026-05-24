@@ -38,12 +38,12 @@ function getRangeForecastTitle(startDate, endDate) {
   }
 
   return (
-  <>
-    Day-wise weather data from
-    <br />
-    {formattedStart} to {formattedEnd}
-  </>
-);
+    <>
+      Day-wise weather data from
+      <br />
+      {formattedStart} to {formattedEnd}
+    </>
+  );
 }
 
 function App() {
@@ -71,10 +71,11 @@ function App() {
   const [forecastTitle, setForecastTitle] = useState("5-Day Forecast");
   const [rangeForecast, setRangeForecast] = useState(null);
   const [rangeForecastTitle, setRangeForecastTitle] = useState(
-    "Day-wise weather data for custom date range"
+    "Day-wise weather data for custom date range",
   );
   const [pastSearches, setPastSearches] = useState([]);
   const [isPastSearchesLoading, setIsPastSearchesLoading] = useState(false);
+  const [isDownloadLoading, setIsDownloadLoading] = useState(false);
 
   const resetWeatherViews = () => {
     setWeather(null);
@@ -87,14 +88,22 @@ function App() {
     setRangeForecastTitle("Day-wise weather data for custom date range");
   };
 
-  const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
+  const isLocationPayloadValid = ({
+    city,
+    county,
+    state,
+    country,
+    postalcode,
+  }) => {
     const hasCountry = country.trim() !== "";
     const hasPostalCode = postalcode.trim() !== "";
     const hasCity = city.trim() !== "";
     const hasState = state.trim() !== "";
     const hasCounty = county.trim() !== "";
 
-    return hasCountry && (hasPostalCode || (hasCity && (hasState || hasCounty)));
+    return (
+      hasCountry && (hasPostalCode || (hasCity && (hasState || hasCounty)))
+    );
   };
 
   const isValid = isLocationPayloadValid({
@@ -168,7 +177,7 @@ function App() {
       () => {
         setError("Location access was denied or unavailable.");
         setIsLocationLoading(false);
-      }
+      },
     );
   };
 
@@ -220,7 +229,7 @@ function App() {
 
     if (!isLocationPayloadValid(payload)) {
       setError(
-        "Provide country with postal code, or country with city and state or county"
+        "Provide country with postal code, or country with city and state or county",
       );
       return;
     }
@@ -263,10 +272,40 @@ function App() {
     }
   };
 
+  const handleDownloadWeatherData = async () => {
+    setError("");
+    setIsDownloadLoading(true);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/weather/export`);
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+
+        throw new Error(result.error || "Failed to download weather data.");
+      }
+
+      const csvBlob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(csvBlob);
+      const link = document.createElement("a");
+
+      link.href = objectUrl;
+      link.download = "weather-data.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setIsDownloadLoading(false);
+    }
+  };
+
   const handleAddPastSearchNotes = async (search) => {
     const nextNotes = window.prompt(
       "Add notes for this search:",
-      search.user_notes || ""
+      search.user_notes || "",
     );
 
     if (nextNotes === null) {
@@ -284,7 +323,7 @@ function App() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ userNotes: nextNotes.trim() || null }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -294,7 +333,8 @@ function App() {
       }
 
       const savedSearch = result.search || null;
-      const nextNoteValue = savedSearch?.user_notes ?? (nextNotes.trim() || null);
+      const nextNoteValue =
+        savedSearch?.user_notes ?? (nextNotes.trim() || null);
 
       setPastSearches((currentSearches) =>
         currentSearches.map((item) =>
@@ -304,8 +344,8 @@ function App() {
                 user_notes: nextNoteValue,
                 updated_at: savedSearch?.updated_at ?? item.updated_at,
               }
-            : item
-        )
+            : item,
+        ),
       );
     } catch (err) {
       setError(err.message || "Something went wrong.");
@@ -314,7 +354,7 @@ function App() {
 
   const handleDeletePastSearch = async (search) => {
     const confirmed = window.confirm(
-      "Delete this record and its related weather data?"
+      "Delete this record and its related weather data?",
     );
 
     if (!confirmed) {
@@ -328,7 +368,7 @@ function App() {
         `${apiBaseUrl}/api/weather/searches/${search.id}`,
         {
           method: "DELETE",
-        }
+        },
       );
 
       const result = await response.json();
@@ -338,7 +378,7 @@ function App() {
       }
 
       setPastSearches((currentSearches) =>
-        currentSearches.filter((item) => item.id !== search.id)
+        currentSearches.filter((item) => item.id !== search.id),
       );
     } catch (err) {
       setError(err.message || "Something went wrong.");
@@ -433,7 +473,9 @@ function App() {
 
       if (view === "current") {
         setRangeForecast(forecastResult.forecast);
-        setRangeForecastTitle(getRangeForecastTitle(dateRangeStart, dateRangeEnd));
+        setRangeForecastTitle(
+          getRangeForecastTitle(dateRangeStart, dateRangeEnd),
+        );
       } else {
         setForecast(forecastResult.forecast);
         setLocation(forecastResult.location.display_name);
@@ -464,23 +506,38 @@ function App() {
                   ? "Finding your location..."
                   : "Get weather at your location"}
               </button>
-              <br/>
+              <br />
               <button
                 type="button"
                 className="location-button"
                 onClick={handlePastSearches}
-                disabled={isPastSearchesLoading || isLoading || isLocationLoading}
+                disabled={
+                  isPastSearchesLoading || isLoading || isLocationLoading
+                }
               >
                 {isPastSearchesLoading
                   ? "Fetching history..."
                   : "Past Searches"}
+              </button>
+              <br />
+              <button
+                type="button"
+                className="location-button"
+                onClick={handleDownloadWeatherData}
+                disabled={isDownloadLoading || isLoading || isLocationLoading}
+              >
+                {isDownloadLoading
+                  ? "Downloading data..."
+                  : "Download weather data (CSV)"}
               </button>
             </aside>
 
             <main className="right-column">
               <form id="addressForm" onSubmit={handleSubmit}>
                 <fieldset>
-                  <legend style={{ textAlign: "center" }}>Enter an address</legend>
+                  <legend style={{ textAlign: "center" }}>
+                    Enter an address
+                  </legend>
 
                   <div
                     style={{
