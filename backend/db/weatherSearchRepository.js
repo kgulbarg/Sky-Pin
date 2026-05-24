@@ -57,6 +57,7 @@ async function listWeatherSearches(db = pool) {
       SELECT
         id,
         search_time,
+        updated_at,
         city,
         state,
         cunty,
