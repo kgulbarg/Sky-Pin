@@ -3,8 +3,8 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  getForecast5Day
-} = require("../services/forecast5dayService");
+  getForecastDays
+} = require("../services/forecastDaysService");
 const {
   LOCATION_INPUT_ERROR_MESSAGE
 } = require("../services/geocoordService");
@@ -14,6 +14,10 @@ const {
   getTodayDateString,
 } = require("../services/weatherPersistenceService");
 
+function getDefaultForecastEndDate() {
+  return getTodayDateString(new Date(Date.now() + 4 * 24 * 60 * 60 * 1000));
+}
+
 router.post("/", async (req, res) => {
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -22,7 +26,10 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const result = await getForecast5Day(req.body);
+    const result = await getForecastDays(req.body);
+
+    const startDate = req.body.startDate || getTodayDateString();
+    const endDate = req.body.endDate || getDefaultForecastEndDate();
 
     await recordWeatherSearchWithDailyRows({
       city: req.body.city || null,
@@ -32,8 +39,8 @@ router.post("/", async (req, res) => {
       pincode: req.body.postalcode || null,
       latitude: result.location.latitude,
       longitude: result.location.longitude,
-      startDate: getTodayDateString(),
-      endDate: getTodayDateString(new Date(Date.now() + 4 * 24 * 60 * 60 * 1000)),
+      startDate,
+      endDate,
     }, buildFiveDayWeatherDailyRows(result.forecast));
 
     res.json(result);

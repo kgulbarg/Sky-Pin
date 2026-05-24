@@ -1,6 +1,9 @@
 import "../styles/forecastCard.css";
 
+import DateRangeForm from "./dateRangeForm.jsx";
 import { getWeatherUI } from "../utils/weatherMappings.js";
+
+import { BsGeoAltFill } from "react-icons/bs";
 
 function formatForecastDate(dateValue) {
   if (!dateValue) {
@@ -16,37 +19,76 @@ function formatForecastDate(dateValue) {
   }).format(date);
 }
 
-function ForecastCard({ location, forecast, onBackToCurrent, onSearchAgain }) {
+function ForecastCard({
+  location,
+  forecast,
+  onBackToCurrent,
+  onSearchAgain,
+  title = "5-Day Forecast",
+  showDateRangeForm = false,
+  onToggleDateRange,
+  dateRangeStart,
+  dateRangeEnd,
+  onDateRangeStartChange,
+  onDateRangeEndChange,
+  onDateRangeSubmit,
+  isDateRangeLoading = false,
+  dateRangeError = "",
+  error = "",
+}) {
   const daily = forecast?.daily || [];
   const units = forecast?.daily_units || {};
 
   return (
     <section id="weatherPage" aria-live="polite">
       <div id="weatherResult" className="forecast-result">
+        <div className="result-location-row">
+            <h3 aria-hidden="true"><BsGeoAltFill /> &nbsp;{location}</h3>
+        </div>
+
         <div className="forecast-actions">
           <button
-            className="back-button"
-            type="button"
-            aria-label="Back to current weather"
-            onClick={onBackToCurrent}
-          >
-            &#9664;
-          </button>
-
-          <button
-            className="search-button"
+            className="action-button"
             type="button"
             onClick={onSearchAgain}
           >
             New search
           </button>
+
+          <button
+            className="action-button"
+            type="button"
+            aria-label="Back to current weather"
+            onClick={onBackToCurrent}
+          >
+            Current weather
+          </button>
+
+          <button
+            className="action-button"
+            type="button"
+            onClick={onToggleDateRange}
+          >
+            {showDateRangeForm ? "Hide Date Range Search" : "View Date Range Search"}
+          </button>
         </div>
+
+        {showDateRangeForm ? (
+          <DateRangeForm
+            startDate={dateRangeStart}
+            endDate={dateRangeEnd}
+            onStartDateChange={onDateRangeStartChange}
+            onEndDateChange={onDateRangeEndChange}
+            onSubmit={onDateRangeSubmit}
+            isLoading={isDateRangeLoading}
+            error={dateRangeError}
+          />
+        ) : null}
 
         <div className="weather-header-row">
           <div className="weather-text">
             <p className="weather-kicker">Weather results</p>
-            <h2>5-Day Forecast</h2>
-            <p className="weather-location">{location}</p>
+            <h2>{title}</h2>
           </div>
         </div>
 

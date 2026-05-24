@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { validateCoordinates, getWeatherData, getFiveDayWeatherData } = require('../services/weatherService');
+const { validateCoordinates, getWeatherData, getFiveDayWeatherData, getWeatherDataForDateRange, validateDateRange } = require('../services/weatherService');
 
 jest.mock('axios');
 
@@ -120,6 +120,56 @@ describe('weatherService', () => {
       axios.get.mockResolvedValue({ data: {} });
 
       await expect(getFiveDayWeatherData(1, 2)).rejects.toThrow('5-day forecast data not found.');
+    });
+  });
+
+  describe('validateDateRange', () => {
+    test('returns errors for invalid ranges', () => {
+      expect(validateDateRange()).toMatch(/required/);
+      expect(validateDateRange('2026-01-02', '2026-01-01')).toMatch(/on or after/);
+      expect(validateDateRange('01-02-2026', '2026-01-03')).toMatch(/valid YYYY-MM-DD/);
+    });
+
+    test('enforces Open-Meteo window (90 days past, 15 days future)', () => {
+      // dates outside allowed window relative to 2026-05-23
+      expect(validateDateRange('2026-01-01', '2026-01-05')).toMatch(/too far in the past/);
+      expect(validateDateRange('2026-06-10', '2026-06-12')).toMatch(/too far in the future/);
+    });
+  });
+
+  describe('getWeatherDataForDateRange', () => {
+    test('sends start_date and end_date to the weather API', async () => {
+      axios.get.mockResolvedValue({
+        data: {
+          latitude: 1,
+          longitude: 2,
+          generationtime_ms: 1.1,
+          elevation: 10,
+          timezone: 'UTC',
+          timezone_abbreviation: 'UTC',
+          utc_offset_seconds: 0,
+          daily_units: { temperature_2m_max: '°C' },
+          daily: {
+            time: ['2026-01-01'],
+            weather_code: [0],
+            temperature_2m_max: [10],
+            temperature_2m_min: [1],
+          }
+        }
+      });
+
+      const res = await getWeatherDataForDateRange(1, 2, '2026-05-20', '2026-05-23');
+
+      expect(res.daily).toHaveLength(1);
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://api.open-meteo.com/v1/forecast',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            start_date: '2026-05-20',
+            end_date: '2026-05-23'
+          })
+        })
+      );
     });
   });
 });
