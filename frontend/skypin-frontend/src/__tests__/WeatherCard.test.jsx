@@ -27,6 +27,7 @@ describe('WeatherCard', () => {
           },
         }}
         onSearchAgain={vi.fn()}
+        onSeeForecast={vi.fn()}
       />
     );
 

@@ -30,6 +30,7 @@ describe('ForecastCard', () => {
         forecast={sampleForecast}
         onBackToCurrent={onBackToCurrent}
         onSearchAgain={onSearchAgain}
+        onToggleDateRange={vi.fn()}
       />
     );
 
