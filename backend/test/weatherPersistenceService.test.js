@@ -98,6 +98,28 @@ describe("weatherPersistenceService", () => {
     expect(query.mock.calls[0][0]).toContain("INSERT INTO weather_searches");
   });
 
+  test("lists past weather searches ordered by search time", async () => {
+    const query = jest.fn().mockResolvedValue({
+      rows: [
+        { id: 2, search_time: "2026-05-23T12:00:00Z" },
+        { id: 1, search_time: "2026-05-22T12:00:00Z" },
+      ],
+    });
+
+    jest.doMock("../db/connection", () => ({
+      query,
+    }));
+
+    const { getPastWeatherSearches } = require("../services/weatherPersistenceService");
+
+    const searches = await getPastWeatherSearches();
+
+    expect(searches).toHaveLength(2);
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0][0]).toContain("FROM weather_searches");
+    expect(query.mock.calls[0][0]).toContain("ORDER BY search_time DESC, id DESC");
+  });
+
   test("recordWeatherSearchWithDailyRows commits search and daily rows together", async () => {
     const client = {
       query: jest

@@ -51,6 +51,31 @@ async function createWeatherSearch(searchData = {}, db = pool) {
   return result.rows[0].id;
 }
 
+async function listWeatherSearches(db = pool) {
+  const result = await db.query(
+    `
+      SELECT
+        id,
+        search_time,
+        city,
+        state,
+        cunty,
+        country,
+        pincode,
+        latitude,
+        longitude,
+        start_date,
+        end_date,
+        user_notes
+      FROM weather_searches
+      ORDER BY search_time DESC, id DESC
+    `
+  );
+
+  return result.rows;
+}
+
 module.exports = {
   createWeatherSearch,
+  listWeatherSearches,
 };

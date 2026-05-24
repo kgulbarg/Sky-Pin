@@ -1,6 +1,7 @@
 const pool = require("../db/connection");
 const {
   createWeatherSearch,
+  listWeatherSearches,
 } = require("../db/weatherSearchRepository");
 const {
   createWeatherDailyRows,
@@ -60,9 +61,14 @@ async function recordWeatherSearchWithDailyRows(searchData = {}, dailyRows = [])
   }
 }
 
+async function getPastWeatherSearches() {
+  return listWeatherSearches();
+}
+
 module.exports = {
   buildCurrentWeatherDailyRow,
   buildFiveDayWeatherDailyRows,
   getTodayDateString,
+  getPastWeatherSearches,
   recordWeatherSearchWithDailyRows,
 };

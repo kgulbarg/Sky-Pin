@@ -1,6 +1,7 @@
 import { useState } from "react";
 import WeatherCard from "./components/weatherCard.jsx";
 import ForecastCard from "./components/forecastCard.jsx";
+import PastSearchesCard from "./components/pastSearchesCard.jsx";
 import "./App.css";
 
 function getLocalDateString(date = new Date()) {
@@ -72,6 +73,19 @@ function App() {
   const [rangeForecastTitle, setRangeForecastTitle] = useState(
     "Day-wise weather data for custom date range"
   );
+  const [pastSearches, setPastSearches] = useState([]);
+  const [isPastSearchesLoading, setIsPastSearchesLoading] = useState(false);
+
+  const resetWeatherViews = () => {
+    setWeather(null);
+    setForecast(null);
+    setRangeForecast(null);
+    setLocation(null);
+    setForecastTitle("5-Day Forecast");
+    setShowDateRangeForm(false);
+    setDateRangeError("");
+    setRangeForecastTitle("Day-wise weather data for custom date range");
+  };
 
   const isLocationPayloadValid = ({ city, county, state, country, postalcode }) => {
     const hasCountry = country.trim() !== "";
@@ -94,13 +108,8 @@ function App() {
   const loadWeatherForPayload = async (payload) => {
     setError("");
     setView("form");
-    setWeather(null);
-    setForecast(null);
-    setRangeForecast(null);
-    setLocation(null);
-    setForecastTitle("5-Day Forecast");
-    setShowDateRangeForm(false);
-    setDateRangeError("");
+    resetWeatherViews();
+    setPastSearches([]);
     setSearchPayload(payload);
     setIsLoading(true);
 
@@ -166,13 +175,9 @@ function App() {
   const loadWeatherForCoordinates = async ({ latitude, longitude }) => {
     setError("");
     setView("form");
-    setWeather(null);
-    setForecast(null);
-    setRangeForecast(null);
+    resetWeatherViews();
+    setPastSearches([]);
     setLocation("Your current location");
-    setForecastTitle("5-Day Forecast");
-    setShowDateRangeForm(false);
-    setDateRangeError("");
     setIsLocationLoading(true);
 
     try {
@@ -225,20 +230,37 @@ function App() {
 
   const handleSearchAgain = () => {
     setView("form");
-    setWeather(null);
-    setForecast(null);
-    setRangeForecast(null);
-    setLocation(null);
+    resetWeatherViews();
     setError("");
     setSearchPayload(null);
-    setShowDateRangeForm(false);
     setDateRangeStart("");
     setDateRangeEnd("");
     setIsDateRangeLoading(false);
     setDateRangeError("");
-    setForecastTitle("5-Day Forecast");
-    setRangeForecast(null);
-    setRangeForecastTitle("Day-wise weather data for custom date range");
+    setPastSearches([]);
+  };
+
+  const handlePastSearches = async () => {
+    setError("");
+    setView("pastSearches");
+    setIsPastSearchesLoading(true);
+    setPastSearches([]);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/weather/searches`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to load past searches.");
+      }
+
+      setPastSearches(result.searches || []);
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+      setView("form");
+    } finally {
+      setIsPastSearchesLoading(false);
+    }
   };
 
   const loadForecastDays = async (payload) => {
@@ -360,12 +382,23 @@ function App() {
                   ? "Finding your location..."
                   : "Get weather at your location"}
               </button>
+              <br/>
+              <button
+                type="button"
+                className="location-button"
+                onClick={handlePastSearches}
+                disabled={isPastSearchesLoading || isLoading || isLocationLoading}
+              >
+                {isPastSearchesLoading
+                  ? "Fetching history..."
+                  : "Past Searches"}
+              </button>
             </aside>
 
             <main className="right-column">
               <form id="addressForm" onSubmit={handleSubmit}>
                 <fieldset>
-                  <legend>Enter your address</legend>
+                  <legend style={{ textAlign: "center" }}>Enter an address</legend>
 
                   <div
                     style={{
@@ -516,6 +549,15 @@ function App() {
                 onDateRangeSubmit={handleDateRangeSubmit}
                 isDateRangeLoading={isDateRangeLoading}
                 dateRangeError={dateRangeError}
+              />
+            )}
+
+            {view === "pastSearches" && (
+              <PastSearchesCard
+                searches={pastSearches}
+                isLoading={isPastSearchesLoading}
+                error={error}
+                onSearchAgain={handleSearchAgain}
               />
             )}
           </>

@@ -303,4 +303,45 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByText(validationError)).toBeInTheDocument());
   });
+
+  test('loads and displays past searches when the history button is clicked', async () => {
+    const pastSearchesResponse = {
+      searches: [
+        {
+          id: 1,
+          search_time: '2026-05-23T12:00:00Z',
+          city: 'Paris',
+          state: 'Ile-de-France',
+          cunty: null,
+          country: 'France',
+          pincode: '75001',
+          latitude: 48.8566,
+          longitude: 2.3522,
+          start_date: '2026-05-23',
+          end_date: '2026-05-23',
+          user_notes: 'morning check'
+        }
+      ]
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(pastSearchesResponse)
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<App />);
+
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /past searches/i }));
+
+    await waitFor(() => expect(screen.getByText(/Past Searches/i)).toBeInTheDocument());
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toMatch(/\/api\/weather\/searches$/);
+    expect(screen.getByText(/Paris, Ile-de-France, France, 75001/i)).toBeInTheDocument();
+    expect(screen.getByText(/morning check/i)).toBeInTheDocument();
+  });
 });
