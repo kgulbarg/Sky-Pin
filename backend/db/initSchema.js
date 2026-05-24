@@ -13,9 +13,15 @@ const CREATE_WEATHER_SEARCHES_TABLE = `
     longitude DOUBLE PRECISION,
     start_date DATE,
     end_date DATE,
-    user_notes TEXT
+    user_notes TEXT,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )
 `;
+
+// const ADD_WEATHER_SEARCHES_UPDATED_AT_COLUMN = `
+//   ALTER TABLE weather_searches
+//   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+// `;
 
 const CREATE_WEATHER_DAILY_TABLE = `
   CREATE TABLE IF NOT EXISTS weather_daily (
@@ -32,11 +38,13 @@ const CREATE_WEATHER_DAILY_TABLE = `
 
 async function initializeDatabaseSchema() {
   await pool.query(CREATE_WEATHER_SEARCHES_TABLE);
+  // await pool.query(ADD_WEATHER_SEARCHES_UPDATED_AT_COLUMN);
   await pool.query(CREATE_WEATHER_DAILY_TABLE);
 }
 
 module.exports = {
   initializeDatabaseSchema,
   CREATE_WEATHER_SEARCHES_TABLE,
+  // ADD_WEATHER_SEARCHES_UPDATED_AT_COLUMN,
   CREATE_WEATHER_DAILY_TABLE,
 };

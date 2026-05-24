@@ -57,6 +57,7 @@ async function listWeatherSearches(db = pool) {
       SELECT
         id,
         search_time,
+        updated_at,
         city,
         state,
         cunty,
@@ -75,7 +76,50 @@ async function listWeatherSearches(db = pool) {
   return result.rows;
 }
 
+async function updateWeatherSearchNotes(searchId, userNotes = null, db = pool) {
+  const result = await db.query(
+    `
+      UPDATE weather_searches
+      SET user_notes = $2,
+          updated_at = NOW()
+      WHERE id = $1
+      RETURNING
+        id,
+        search_time,
+        updated_at,
+        city,
+        state,
+        cunty,
+        country,
+        pincode,
+        latitude,
+        longitude,
+        start_date,
+        end_date,
+        user_notes
+    `,
+    [searchId, userNotes]
+  );
+
+  return result.rows[0] || null;
+}
+
+async function deleteWeatherSearch(searchId, db = pool) {
+  const result = await db.query(
+    `
+      DELETE FROM weather_searches
+      WHERE id = $1
+      RETURNING id
+    `,
+    [searchId]
+  );
+
+  return result.rows[0] || null;
+}
+
 module.exports = {
   createWeatherSearch,
+  deleteWeatherSearch,
   listWeatherSearches,
+  updateWeatherSearchNotes,
 };
