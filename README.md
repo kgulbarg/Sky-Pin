@@ -36,68 +36,50 @@ Key features:
 
 There are two main ways to run the app locally: with Docker (recommended for full stack + database) or running backend/frontend separately for fast frontend development.
 
-### Option A — Full stack (Docker)
+### Prerequisites
 
+1. Docker Destop must be installed
+2. Git must be installed
+
+### Steps
+
+1. Clone the repository
 ```bash
 git clone <repo-url>
+```
+2. Navigate into the project folder.
+```bash
 cd SkyPin
+```
+3. Create a local environment configuration file from the example template.
+```bash
+cp .env.example .env
+```
+4. In the `.env` file, add your Geocoding API Key.
+
+5. Build and start all application containers.
+```bash
 docker compose up --build
 ```
 
-This brings up the backend, frontend, and a PostgreSQL instance (if configured in the compose file).
-
-Application URLs:
+### Application Components:
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:5000
+- Database: Inside Docker network as postgres:5432 - Can be accessed through Docker Desktop: Containers -> weather-postgres -> Exec
 
-### Option B — Run services individually
-
-Backend (API):
-
-```bash
-cd backend
-npm install
-node server.js
-```
-
-Frontend (Dev):
+## Running Unit Tests
+1. Frontend
 
 ```bash
-cd frontend/skypin-frontend
-npm install
-npm run dev
-```
-
-Visit `http://localhost:5173` to open the frontend.
-
-## Environment / Configuration
-
-The project reads configuration from environment variables. Common variables:
-
-- `PORT` — backend listen port (default: 5000)
-- `DATABASE_URL` — PostgreSQL connection string (when running with persistence)
-- `GEOCODE_API_KEY` — optional key for a geocoding provider (if required)
-
-When using Docker compose, environment variables can be provided via a `.env` file or set in your local environment.
-
-## Testing
-
-Frontend tests use Vitest + Testing Library. Run tests from the frontend folder:
-
-```bash
-cd frontend/skypin-frontend
-npm install
+cd frontend\skipin-frontend
 npm test
 ```
 
-## Build
-
-To create a production build of the frontend:
-
+2. Backend
 ```bash
-cd frontend/skypin-frontend
-npm run build
+cd backend
+npm test
 ```
 
 ## Troubleshooting
