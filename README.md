@@ -34,8 +34,6 @@ Key features:
 
 ## Quick Start
 
-There are two main ways to run the app locally: with Docker (recommended for full stack + database) or running backend/frontend separately for fast frontend development.
-
 ### Prerequisites
 
 1. Docker Destop must be installed
@@ -43,21 +41,21 @@ There are two main ways to run the app locally: with Docker (recommended for ful
 
 ### Steps
 
-1. Clone the repository
+1. Launch Docker Desktop
+2. Clone the repository
 ```bash
 git clone <repo-url>
 ```
-2. Navigate into the project folder.
+3. Navigate into the project folder.
 ```bash
 cd SkyPin
 ```
-3. Create a local environment configuration file from the example template.
+4. Create a local environment configuration file from the example template.
 ```bash
 cp .env.example .env
 ```
-4. In the `.env` file, add your Geocoding API Key.
-
-5. Build and start all application containers.
+5. In the `.env` file, add your Geocoding API Key.
+6. Build and start all application containers.
 ```bash
 docker compose up --build
 ```
