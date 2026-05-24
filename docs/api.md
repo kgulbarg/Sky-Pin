@@ -54,3 +54,58 @@ Examples returning 200 with weather data in response body:
 "state": "PA",
 "country": "United States",
 }
+
+### Past Searches API - Manage and view saved searches
+
+- Endpoint: `GET http://localhost:5000/api/weather/searches`
+	- Returns a JSON object with a `searches` array. If there are no saved searches the array will be empty (`{ "searches": [] }`).
+
+	Example successful response (200):
+	{
+		"searches": [
+			{
+				"id": 123,
+				"search_time": "2026-05-24T08:12:34Z",
+				"city": "Norristown",
+				"state": "PA",
+				"country": "United States",
+				"latitude": 40.123,
+				"longitude": -75.345,
+				"start_date": "2026-05-24",
+				"end_date": "2026-05-24",
+				"user_notes": null,
+				"updated_at": "2026-05-24T08:12:34Z"
+			}
+		]
+	}
+
+- Endpoint: `PATCH http://localhost:5000/api/weather/searches/:searchId/notes`
+	- Body: `{ "userNotes": "Your notes here" }` (use `null` to clear).
+	- Returns the updated search record on success (200).
+
+	Example request body:
+	{
+		"userNotes": "Checked conditions while traveling"
+	}
+
+	Example successful response (200):
+	{
+		"search": {
+			"id": 123,
+			"user_notes": "Checked conditions while traveling",
+			"updated_at": "2026-05-24T09:00:00Z"
+		}
+	}
+
+- Endpoint: `DELETE http://localhost:5000/api/weather/searches/:searchId`
+	- Deletes a past search and its related weather rows.
+	- Returns `{ "deletedSearchId": <id> }` on success (200).
+
+	Example successful response (200):
+	{
+		"deletedSearchId": 123
+	}
+
+Notes:
+- All past-searches endpoints are rooted at `/api/weather` in the server.
+- Standard HTTP status codes are used: `200` for success, `400` for bad requests (e.g. invalid id), `404` for not found, and `500` for server errors.
