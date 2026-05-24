@@ -9,10 +9,10 @@ Lightweight weather lookup and visualization app with an interactive map preview
 Sky Pin lets users search places (geocoding), view current weather and multi-day forecasts, save and revisit past searches, and open an interactive map centered on the selected location.
 
 Key features:
-- Search locations and view current weather
+- View current weather at searched location
 - 5-day forecast and date-range forecasting
-- Past searches list with quick re-open
-- "View on map" interactive preview (drag & zoom)
+- Past searches list with update and delete actions
+- Interactive map for location (drag & zoom)
 
 ## External Services
 
