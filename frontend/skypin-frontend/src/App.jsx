@@ -622,7 +622,7 @@ function App() {
                       <span>
                         {country.trim() !== "" && postalcode.trim() !== ""
                           ? "✓"
-                          : "◯"}
+                          : "✗"}
                       </span>{" "}
                       &nbsp;Country + Postal code
                     </div>
@@ -632,7 +632,7 @@ function App() {
                         city.trim() !== "" &&
                         (state.trim() !== "" || county.trim() !== "")
                           ? "✓"
-                          : "◯"}
+                          : "✗"}
                       </span>{" "}
                       &nbsp;Country + City + State or County
                     </div>
