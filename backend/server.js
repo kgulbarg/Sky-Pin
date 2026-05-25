@@ -19,17 +19,17 @@ app.use("/api/forecastDays", require("./routes/forecastDays"));
 /* Health check */
 app.get("/", (req, res) => {
   res.json({
-    message: "SkyPin backend is running"
+    message: "SkyPin backend is running",
   });
 });
 
-const BACKEND_PORT = parseInt(process.env.BACKEND_PORT, 10) || 3000;
+const PORT = parseInt(process.env.PORT || process.env.BACKEND_PORT, 10) || 3000;
 
 async function startServer() {
   await initializeDatabaseSchema();
 
-  app.listen(BACKEND_PORT, () => {
-    console.log(`Server running on BACKEND_PORT ${BACKEND_PORT}`);
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
