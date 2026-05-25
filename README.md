@@ -16,10 +16,10 @@ Key features:
 
 ## External Services
 
-1. Geocoding API: https://geocode.maps.co/search  
+1. Geocoding API: https://geocode.maps.co/  
    (Requires API Key)
 
-2. Weather API: https://api.open-meteo.com/v1/forecast
+2. Weather API: https://api.open-meteo.com/
 
 3. Weather Icons CDN: https://cdn.meteocons.com/
 
@@ -55,8 +55,9 @@ cd Sky-Pin
 ```bash
 cp .env.example .env
 ```
-5. In the `.env` file, add your Geocoding API Key.
-6. Build and start all application containers.
+5. Get your Geocoding API Key from https://geocode.maps.co/
+6. In the `.env` file, add your Geocoding API Key.
+7. Build and start all application containers.
 ```bash
 docker compose up --build
 ```
