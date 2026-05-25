@@ -20,6 +20,7 @@ describe('db/connection', () => {
       database: 'mydb',
       user: 'dbuser',
       password: 'dbpass',
+      ssl: false,
     });
 
     expect(pool).toBeDefined();
