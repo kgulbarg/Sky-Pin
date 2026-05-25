@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - skypin-backend-kaumudi
 on:
   push:
     branches:
-      - deployment
+      - deployment-azure
   workflow_dispatch:
 
 jobs:
