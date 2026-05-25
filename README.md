@@ -45,11 +45,11 @@ Key features:
 2. Open a terminal (PowerShell, Command Prompt, Terminal, etc.)
 3. Clone the repository
 ```bash
-git clone <repo-url>
+git clone https://github.com/kgulbarg/Sky-Pin.git
 ```
 3. Navigate into the project folder.
 ```bash
-cd SkyPin
+cd Sky-Pin
 ```
 4. Create a local environment configuration file from the example template.
 ```bash
