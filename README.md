@@ -36,7 +36,7 @@ Key features:
 
 ### Prerequisites
 
-1. Docker Destop must be installed
+1. Docker Desktop must be installed
 2. Git must be installed
 
 ### Steps
