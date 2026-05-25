@@ -41,8 +41,9 @@ Key features:
 
 ### Steps
 
-1. Launch Docker Desktop
-2. Clone the repository
+1. Launch Docker Desktop and wait for it to finish starting
+2. Open a terminal (PowerShell, Command Prompt, Terminal, etc.)
+3. Clone the repository
 ```bash
 git clone <repo-url>
 ```
