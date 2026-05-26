@@ -48,8 +48,9 @@ function getRangeForecastTitle(startDate, endDate) {
 }
 
 function App() {
-  const apiBaseUrl = `http://localhost:${__BACKEND_PORT__}`;
-
+  const apiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL?.trim() ||
+    `http://localhost:${__BACKEND_PORT__}`;
   const [city, setCity] = useState("");
   const [county, setCounty] = useState("");
   const [state, setState] = useState("");

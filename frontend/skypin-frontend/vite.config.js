@@ -6,7 +6,7 @@ import react from "@vitejs/plugin-react";
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const configDir = path.dirname(fileURLToPath(import.meta.url));
-  const env = loadEnv(mode, path.resolve(configDir, "../.."), "BACKEND_PORT");
+  const env = loadEnv(mode, path.resolve(configDir, "../.."), "");
   const backendPort = env.BACKEND_PORT || "3000";
 
   return {
