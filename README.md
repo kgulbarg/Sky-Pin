@@ -72,7 +72,7 @@ docker compose up --build
 1. Frontend
 
 ```bash
-cd frontend\skipin-frontend
+cd frontend\skypin-frontend
 npm test
 ```
 
