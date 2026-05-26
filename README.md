@@ -61,6 +61,7 @@ cp .env.example .env
 ```bash
 docker compose up --build
 ```
+8. Use the application by opening http://localhost:5173 on your browser.
 
 ### Application Components:
 
