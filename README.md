@@ -1,6 +1,6 @@
 <img src="frontend/skypin-frontend/public/logo.png" width="200"/>
 
-# Sky Pin
+# [Sky Pin](https://sky-pin.vercel.app/)
 
 Lightweight weather lookup and visualization app with an interactive map preview for each searched location.
 
@@ -87,3 +87,10 @@ npm test
 - If `docker compose up` fails, check that ports `5173` and `5000` are free or adjust the compose file.
 - If the frontend can't reach the backend during dev, ensure `server.js` is running and the API base URL in the frontend matches `http://localhost:5000`.
 - To test backend APIs, see `docs/api.md`.
+
+## Hosting
+
+- Uses `deployment` branch
+- Database - Supabase
+- Backend - Render: https://sky-pin.onrender.com/
+- Frontend - Vercel: https://sky-pin.vercel.app/
