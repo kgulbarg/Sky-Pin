@@ -4,6 +4,14 @@ import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { afterEach, describe, test, expect, vi } from 'vitest';
 
+function getDateString(offsetDays = 0) {
+  const date = new Date();
+  date.setHours(12, 0, 0, 0);
+  date.setDate(date.getDate() + offsetDays);
+
+  return date.toISOString().slice(0, 10);
+}
+
 describe('App', () => {
   globalThis.React = React;
 
@@ -38,11 +46,11 @@ describe('App', () => {
       forecast: {
         daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
         daily: [
-          { date: '2026-01-01', weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14, rain_sum: 0, wind_speed_10m_max: 5 },
-          { date: '2026-01-02', weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13, rain_sum: 1, wind_speed_10m_max: 6 },
-          { date: '2026-01-03', weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12, rain_sum: 2, wind_speed_10m_max: 7 },
-          { date: '2026-01-04', weather_code: 3, temperature_2m_max: 18, temperature_2m_min: 11, rain_sum: 3, wind_speed_10m_max: 8 },
-          { date: '2026-01-05', weather_code: 45, temperature_2m_max: 17, temperature_2m_min: 10, rain_sum: 4, wind_speed_10m_max: 9 }
+          { date: getDateString(), weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14, rain_sum: 0, wind_speed_10m_max: 5 },
+          { date: getDateString(1), weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13, rain_sum: 1, wind_speed_10m_max: 6 },
+          { date: getDateString(2), weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12, rain_sum: 2, wind_speed_10m_max: 7 },
+          { date: getDateString(3), weather_code: 3, temperature_2m_max: 18, temperature_2m_min: 11, rain_sum: 3, wind_speed_10m_max: 8 },
+          { date: getDateString(4), weather_code: 45, temperature_2m_max: 17, temperature_2m_min: 10, rain_sum: 4, wind_speed_10m_max: 9 }
         ]
       }
     };
@@ -174,7 +182,7 @@ describe('App', () => {
       location: { display_name: 'Your current location', latitude: 12.34, longitude: 56.78 },
       forecast: {
         daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
-        daily: [{ date: '2026-06-01', weather_code: 2, temperature_2m_max: 25, temperature_2m_min: 15 }]
+        daily: [{ date: getDateString(), weather_code: 2, temperature_2m_max: 25, temperature_2m_min: 15 }]
       }
     };
 
@@ -230,9 +238,9 @@ describe('App', () => {
       forecast: {
         daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C' },
         daily: [
-          { date: '2026-05-20', weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14 },
-          { date: '2026-05-21', weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13 },
-          { date: '2026-05-22', weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12 }
+          { date: getDateString(), weather_code: 0, temperature_2m_max: 21, temperature_2m_min: 14 },
+          { date: getDateString(1), weather_code: 1, temperature_2m_max: 20, temperature_2m_min: 13 },
+          { date: getDateString(2), weather_code: 2, temperature_2m_max: 19, temperature_2m_min: 12 }
         ]
       }
     };
@@ -290,7 +298,7 @@ describe('App', () => {
       }
     };
 
-    const validationError = 'Start date is too far in the past. Earliest allowed is 2026-03-24.';
+    const validationError = `Start date is too far in the past. Earliest allowed is ${getDateString(-60)}.`;
 
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(fakeResponse) })
@@ -321,8 +329,8 @@ describe('App', () => {
       searches: [
         {
           id: 1,
-          search_time: '2026-05-23T12:00:00Z',
-          updated_at: '2026-05-24T12:00:00Z',
+          search_time: `${getDateString()}T12:00:00Z`,
+          updated_at: `${getDateString(1)}T12:00:00Z`,
           city: 'Paris',
           state: 'Ile-de-France',
           cunty: null,
@@ -330,8 +338,8 @@ describe('App', () => {
           pincode: '75001',
           latitude: 48.8566,
           longitude: 2.3522,
-          start_date: '2026-05-23',
-          end_date: '2026-05-23',
+          start_date: getDateString(),
+          end_date: getDateString(),
           user_notes: 'morning check'
         }
       ]
@@ -368,8 +376,8 @@ describe('App', () => {
       searches: [
         {
           id: 1,
-          search_time: '2026-05-23T12:00:00Z',
-          updated_at: '2026-05-24T12:00:00Z',
+          search_time: `${getDateString()}T12:00:00Z`,
+          updated_at: `${getDateString(1)}T12:00:00Z`,
           city: 'Paris',
           state: 'Ile-de-France',
           cunty: null,
@@ -377,8 +385,8 @@ describe('App', () => {
           pincode: '75001',
           latitude: 48.8566,
           longitude: 2.3522,
-          start_date: '2026-05-23',
-          end_date: '2026-05-23',
+          start_date: getDateString(),
+          end_date: getDateString(),
           user_notes: 'morning check'
         }
       ]
@@ -387,7 +395,7 @@ describe('App', () => {
     const updatedSearchResponse = {
       search: {
         id: 1,
-        updated_at: '2026-05-24T13:00:00Z',
+        updated_at: `${getDateString(1)}T13:00:00Z`,
         user_notes: 'new note'
       }
     };
