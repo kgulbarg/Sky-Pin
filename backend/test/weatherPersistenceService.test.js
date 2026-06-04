@@ -3,8 +3,26 @@ describe("weatherPersistenceService", () => {
     jest.resetModules();
   });
 
+  function getDateString(offsetDays = 0) {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + offsetDays);
+
+    return date.toISOString().slice(0, 10);
+  }
+
+  function getDateTimeString(offsetDays = 0, hours = 12, minutes = 0) {
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    date.setDate(date.getDate() + offsetDays);
+
+    return date.toISOString();
+  }
+
   test("buildCurrentWeatherDailyRow maps current weather to one daily row", () => {
     const { buildCurrentWeatherDailyRow } = require("../services/weatherPersistenceService");
+
+    const date = getDateString();
 
     expect(
       buildCurrentWeatherDailyRow({
@@ -15,9 +33,9 @@ describe("weatherPersistenceService", () => {
           wind_speed_10m: 7,
           weather_code: 2,
         },
-      }, "2026-05-23")
+      }, date)
     ).toEqual({
-      date: "2026-05-23",
+      date,
       temp: 20,
       temp_2m: 19,
       rain: 1,
@@ -29,12 +47,15 @@ describe("weatherPersistenceService", () => {
   test("buildFiveDayWeatherDailyRows maps each forecast day to a daily row", () => {
     const { buildFiveDayWeatherDailyRows } = require("../services/weatherPersistenceService");
 
+    const firstDate = getDateString();
+    const secondDate = getDateString(1);
+
 
     expect(
       buildFiveDayWeatherDailyRows({
         daily: [
           {
-            date: "2026-05-23",
+            date: firstDate,
             temperature_2m_max: 21,
             temperature_2m_min: 12,
             rain_sum: 3,
@@ -42,7 +63,7 @@ describe("weatherPersistenceService", () => {
             weather_code: 3,
           },
           {
-            date: "2026-05-24",
+            date: secondDate,
             temperature_2m_max: 22,
             temperature_2m_min: 13,
             rain_sum: 0,
@@ -53,7 +74,7 @@ describe("weatherPersistenceService", () => {
       })
     ).toEqual([
       {
-        date: "2026-05-23",
+        date: firstDate,
         temp: 21,
         temp_2m: 12,
         rain: 3,
@@ -61,7 +82,7 @@ describe("weatherPersistenceService", () => {
         weatherCode: 3,
       },
       {
-        date: "2026-05-24",
+        date: secondDate,
         temp: 22,
         temp_2m: 13,
         rain: 0,
@@ -88,8 +109,8 @@ describe("weatherPersistenceService", () => {
       pincode: "10115",
       latitude: 52.52,
       longitude: 13.405,
-      startDate: "2026-05-23",
-      endDate: "2026-05-23",
+      startDate: getDateString(),
+      endDate: getDateString(),
       userNotes: "test note",
     });
 
@@ -101,8 +122,8 @@ describe("weatherPersistenceService", () => {
   test("lists past weather searches ordered by search time", async () => {
     const query = jest.fn().mockResolvedValue({
       rows: [
-        { id: 2, search_time: "2026-05-23T12:00:00Z", updated_at: "2026-05-23T12:01:00Z" },
-        { id: 1, search_time: "2026-05-22T12:00:00Z", updated_at: "2026-05-22T12:01:00Z" },
+        { id: 2, search_time: getDateTimeString(), updated_at: getDateTimeString(0, 12, 1) },
+        { id: 1, search_time: getDateTimeString(-1), updated_at: getDateTimeString(-1, 12, 1) },
       ],
     });
 
@@ -126,8 +147,8 @@ describe("weatherPersistenceService", () => {
     const csv = buildWeatherDataCsv([
       {
         search_id: 7,
-        search_time: "2026-05-23T12:00:00.000Z",
-        updated_at: "2026-05-23T12:01:00.000Z",
+        search_time: getDateTimeString(),
+        updated_at: getDateTimeString(0, 12, 1),
         city: "Norristown",
         state: "PA",
         cunty: "Montgomery",
@@ -135,11 +156,11 @@ describe("weatherPersistenceService", () => {
         pincode: "19401",
         latitude: 40.1148787,
         longitude: -75.3433705,
-        start_date: "2026-05-23",
-        end_date: "2026-05-27",
+        start_date: getDateString(),
+        end_date: getDateString(4),
         user_notes: 'Needs "rain" updates',
         daily_id: 99,
-        daily_date: "2026-05-23",
+        daily_date: getDateString(),
         temp: 19.7,
         temp_2m: 12.7,
         rain: 12,
@@ -149,7 +170,7 @@ describe("weatherPersistenceService", () => {
     ]);
 
     expect(csv).toContain("search_id,search_time,updated_at,city,state,cunty,country,pincode,latitude,longitude,start_date,end_date,user_notes,daily_id,daily_date,temp,temp_2m,rain,wind,weather_code");
-    expect(csv).toContain('7,2026-05-23T12:00:00.000Z,2026-05-23T12:01:00.000Z,Norristown,PA,Montgomery,United States,19401,40.1148787,-75.3433705,2026-05-23,2026-05-27,"Needs ""rain"" updates",99,2026-05-23,19.7,12.7,12,15.5,65');
+    expect(csv).toContain(`7,${getDateTimeString()},${getDateTimeString(0, 12, 1)},Norristown,PA,Montgomery,United States,19401,40.1148787,-75.3433705,${getDateString()},${getDateString(4)},"Needs ""rain"" updates",99,${getDateString()},19.7,12.7,12,15.5,65`);
   });
 
   test("updates past search notes and returns the updated row", async () => {
@@ -157,8 +178,8 @@ describe("weatherPersistenceService", () => {
       rows: [
         {
           id: 7,
-          search_time: "2026-05-23T12:00:00Z",
-          updated_at: "2026-05-24T12:00:00Z",
+          search_time: getDateTimeString(),
+          updated_at: getDateTimeString(1),
           user_notes: "updated note",
         },
       ],
@@ -227,12 +248,12 @@ describe("weatherPersistenceService", () => {
         pincode: "19401",
         latitude: 40.1148787,
         longitude: -75.3433705,
-        startDate: "2026-05-23",
-        endDate: "2026-05-27",
+        startDate: getDateString(),
+        endDate: getDateString(4),
       },
       [
         {
-          date: "2026-05-23",
+          date: getDateString(),
           temp: 19.7,
           temp_2m: 12.7,
           rain: 12,
@@ -240,7 +261,7 @@ describe("weatherPersistenceService", () => {
           weatherCode: 65,
         },
         {
-          date: "2026-05-24",
+          date: getDateString(1),
           temp: 20.4,
           temp_2m: 12.6,
           rain: 0,
