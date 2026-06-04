@@ -3,6 +3,14 @@ const { validateCoordinates, getWeatherData, getFiveDayWeatherData, getWeatherDa
 
 jest.mock('axios');
 
+function getDateString(offsetDays = 0) {
+  const date = new Date();
+  date.setHours(12, 0, 0, 0);
+  date.setDate(date.getDate() + offsetDays);
+
+  return date.toISOString().slice(0, 10);
+}
+
 describe('weatherService', () => {
   describe('validateCoordinates', () => {
     test('returns error when missing', () => {
@@ -35,7 +43,7 @@ describe('weatherService', () => {
         utc_offset_seconds: 0,
         current_units: { temperature_2m: '°C' },
         current: {
-          time: '2026-01-01T00:00:00Z',
+          time: `${getDateString()}T00:00:00Z`,
           interval: 'hourly',
           temperature_2m: 20,
           apparent_temperature: 19,
@@ -83,7 +91,7 @@ describe('weatherService', () => {
           utc_offset_seconds: 0,
           daily_units: { temperature_2m_max: '°C' },
           daily: {
-            time: ['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05'],
+            time: Array.from({ length: 5 }, (_, index) => getDateString(index)),
             weather_code: [0, 1, 2, 3, 45],
             temperature_2m_max: [10, 11, 12, 13, 14],
             temperature_2m_min: [1, 2, 3, 4, 5],
@@ -126,14 +134,13 @@ describe('weatherService', () => {
   describe('validateDateRange', () => {
     test('returns errors for invalid ranges', () => {
       expect(validateDateRange()).toMatch(/required/);
-      expect(validateDateRange('2026-01-02', '2026-01-01')).toMatch(/on or after/);
-      expect(validateDateRange('01-02-2026', '2026-01-03')).toMatch(/valid YYYY-MM-DD/);
+      expect(validateDateRange(getDateString(1), getDateString(0))).toMatch(/on or after/);
+      expect(validateDateRange('01-02-2026', getDateString(1))).toMatch(/valid YYYY-MM-DD/);
     });
 
     test('enforces Open-Meteo window (90 days past, 15 days future)', () => {
-      // dates outside allowed window relative to 2026-05-23
-      expect(validateDateRange('2026-01-01', '2026-01-05')).toMatch(/too far in the past/);
-      expect(validateDateRange('2026-06-10', '2026-06-12')).toMatch(/too far in the future/);
+      expect(validateDateRange(getDateString(-61), getDateString(-57))).toMatch(/too far in the past/);
+      expect(validateDateRange(getDateString(16), getDateString(18))).toMatch(/too far in the future/);
     });
   });
 
@@ -150,7 +157,7 @@ describe('weatherService', () => {
           utc_offset_seconds: 0,
           daily_units: { temperature_2m_max: '°C' },
           daily: {
-            time: ['2026-01-01'],
+            time: [getDateString(-1)],
             weather_code: [0],
             temperature_2m_max: [10],
             temperature_2m_min: [1],
@@ -158,15 +165,18 @@ describe('weatherService', () => {
         }
       });
 
-      const res = await getWeatherDataForDateRange(1, 2, '2026-05-20', '2026-05-23');
+      const startDate = getDateString(-4);
+      const endDate = getDateString(-1);
+
+      const res = await getWeatherDataForDateRange(1, 2, startDate, endDate);
 
       expect(res.daily).toHaveLength(1);
       expect(axios.get).toHaveBeenCalledWith(
         'https://api.open-meteo.com/v1/forecast',
         expect.objectContaining({
           params: expect.objectContaining({
-            start_date: '2026-05-20',
-            end_date: '2026-05-23'
+            start_date: startDate,
+            end_date: endDate
           })
         })
       );

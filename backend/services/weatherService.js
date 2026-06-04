@@ -214,11 +214,14 @@ async function getWeatherData(latitude, longitude) {
     };
   } catch (err) {
     
-    console.error("STATUS:", err.response?.status);
-    console.error("FAILED URL:", err.config?.url);
-    console.error("PARAMS:", err.config?.params);
-    console.error("DATA:", err.response?.data || err.message);
-
+    if(err.response) {
+      console.error("STATUS:", err.response?.status);
+      console.error("FAILED URL:", err.config?.url);
+      console.error("PARAMS:", err.config?.params);
+      console.error("DATA:", err.response?.data || err.message);
+    } else {
+      console.error("ERROR:", err.message);
+    }
     throw err;
   }
 }
