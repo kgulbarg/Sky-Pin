@@ -132,82 +132,95 @@ function buildDailyForecast(data) {
 }
 
 async function getWeatherData(latitude, longitude) {
-  const response = await axios.get("https://api.open-meteo.com/v1/forecast", {
-    params: {
-      latitude,
-      longitude,
+  try {
+    const response = await axios.get(
+      "https://api.open-meteo.com/v1/forecast",
+      {
+        params: {
+          latitude,
+          longitude,
 
-      current: [
-        "precipitation",
-        "rain",
-        "temperature_2m",
-        "relative_humidity_2m",
-        "weather_code",
-        "wind_speed_10m",
-        "wind_direction_10m",
-        "wind_gusts_10m",
-        "cloud_cover",
-        "pressure_msl",
-        "surface_pressure",
-        "showers",
-        "snowfall",
-        "is_day",
-        "apparent_temperature",
-      ].join(","),
-      timezone: "auto",
-    },
-  });
+          current: [
+            "precipitation",
+            "rain",
+            "temperature_2m",
+            "relative_humidity_2m",
+            "weather_code",
+            "wind_speed_10m",
+            "wind_direction_10m",
+            "wind_gusts_10m",
+            "cloud_cover",
+            "pressure_msl",
+            "surface_pressure",
+            "showers",
+            "snowfall",
+            "is_day",
+            "apparent_temperature",
+          ].join(","),
+          timezone: "auto",
+        },
+        timeout: 15000,
+      });
 
-  const data = response.data;
+    const data = response.data;
 
-  if (!data.current) {
-    throw new Error("Weather data not found.");
+    if (!data.current) {
+      throw new Error("Weather data not found.");
+    }
+
+    return {
+      coordinates: {
+        latitude: data.latitude,
+        longitude: data.longitude,
+      },
+
+      generationtime_ms: data.generationtime_ms,
+
+      elevation: data.elevation,
+
+      timezone: {
+        name: data.timezone,
+        abbreviation: data.timezone_abbreviation,
+        utc_offset_seconds: data.utc_offset_seconds,
+      },
+
+      current_units: data.current_units,
+
+      current: {
+        time: data.current.time,
+        interval: data.current.interval,
+
+        temperature_2m: data.current.temperature_2m,
+        apparent_temperature: data.current.apparent_temperature,
+
+        precipitation: data.current.precipitation,
+        rain: data.current.rain,
+        showers: data.current.showers,
+        snowfall: data.current.snowfall,
+
+        relative_humidity_2m: data.current.relative_humidity_2m,
+        weather_code: data.current.weather_code,
+        cloud_cover: data.current.cloud_cover,
+
+        surface_pressure: data.current.surface_pressure,
+        pressure_msl: data.current.pressure_msl,
+
+        wind_speed_10m: data.current.wind_speed_10m,
+        wind_direction_10m: data.current.wind_direction_10m,
+        wind_gusts_10m: data.current.wind_gusts_10m,
+
+        is_day: data.current.is_day,
+      },
+    };
+  } catch (err) {
+    
+    console.error("STATUS:", err.response?.status);
+    console.error("FAILED URL:", err.config?.url);
+    console.error("PARAMS:", err.config?.params);
+    console.error("DATA:", err.response?.data || err.message);
+
+    throw err;
   }
-
-  return {
-    coordinates: {
-      latitude: data.latitude,
-      longitude: data.longitude,
-    },
-
-    generationtime_ms: data.generationtime_ms,
-
-    elevation: data.elevation,
-
-    timezone: {
-      name: data.timezone,
-      abbreviation: data.timezone_abbreviation,
-      utc_offset_seconds: data.utc_offset_seconds,
-    },
-
-    current_units: data.current_units,
-
-    current: {
-      time: data.current.time,
-      interval: data.current.interval,
-
-      temperature_2m: data.current.temperature_2m,
-      apparent_temperature: data.current.apparent_temperature,
-
-      precipitation: data.current.precipitation,
-      rain: data.current.rain,
-      showers: data.current.showers,
-      snowfall: data.current.snowfall,
-
-      relative_humidity_2m: data.current.relative_humidity_2m,
-      weather_code: data.current.weather_code,
-      cloud_cover: data.current.cloud_cover,
-
-      surface_pressure: data.current.surface_pressure,
-      pressure_msl: data.current.pressure_msl,
-
-      wind_speed_10m: data.current.wind_speed_10m,
-      wind_direction_10m: data.current.wind_direction_10m,
-      wind_gusts_10m: data.current.wind_gusts_10m,
-
-      is_day: data.current.is_day,
-    },
-  };
 }
 
 async function fetchDailyWeatherData(latitude, longitude, params = {}) {
